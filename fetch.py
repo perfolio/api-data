@@ -254,10 +254,9 @@ def main():
     get_french_data('F-F_Momentum_Factor_CSV', 'F-F_Momentum_Factor.CSV', freq='M')
     get_french_data('F-F_Momentum_Factor_daily_CSV', 'F-F_Momentum_Factor_daily.CSV', freq='D')
     '''
-'''
-TESTS
 print(get_french_data('F-F_Research_Data_Factors_daily_CSV',
                       'F-F_Research_Data_Factors_daily.CSV', freq='D'))
 print(get_ecb_riskfree_rates(freq='D'))
 print(get_boe_exchange_rates(freq='D'))
-'''
+
+
