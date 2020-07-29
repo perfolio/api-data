@@ -3,14 +3,41 @@ from . import models
 from rest_framework import serializers
 
 
-class ExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
+class DailyECBRiskFreeRateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.ExchangeRateUSDPerX
+        model = models.DailyECBRiskFreeRate
         fields = (
-            'pk', 
-            'created', 
-            'last_updated', 
+            'interval', 
+            'RF', 
+        )
+
+
+class MonthlyECBRiskFreeRateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.MonthlyECBRiskFreeRate
+        fields = (
+            'interval', 
+            'RF', 
+        )
+
+
+class AnnuallyECBRiskFreeRateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.AnnuallyECBRiskFreeRate
+        fields = (
+            'interval', 
+            'RF', 
+        )
+
+
+class DailyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DailyExchangeRateUSDPerX
+        fields = (
             'interval', 
             'EUR', 
             'JPY', 
@@ -25,27 +52,49 @@ class ExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
         )
 
 
-class ECBRiskFreeRateSerializer(serializers.ModelSerializer):
+class MonthlyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.ECBRiskFreeRate
+        model = models.MonthlyExchangeRateUSDPerX
         fields = (
-            'pk', 
-            'created', 
-            'last_updated', 
             'interval', 
-            'RF', 
+            'EUR', 
+            'JPY', 
+            'GBP', 
+            'CHF', 
+            'RUB', 
+            'AUD', 
+            'BRL', 
+            'CAD', 
+            'CNY', 
+            'INR', 
         )
 
 
-class ThreeFactorSerializer(serializers.ModelSerializer):
+class AnnuallyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.ThreeFactor
+        model = models.AnnuallyExchangeRateUSDPerX
         fields = (
-            'pk', 
-            'created', 
-            'last_updated', 
+            'interval', 
+            'EUR', 
+            'JPY', 
+            'GBP', 
+            'CHF', 
+            'RUB', 
+            'AUD', 
+            'BRL', 
+            'CAD', 
+            'CNY', 
+            'INR', 
+        )
+
+
+class DailyThreeFactorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DailyThreeFactor
+        fields = (
             'interval', 
             'MktRF', 
             'SMB', 
@@ -54,14 +103,72 @@ class ThreeFactorSerializer(serializers.ModelSerializer):
         )
 
 
-class FiveFactorSerializer(serializers.ModelSerializer):
+class MonthlyThreeFactorSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.FiveFactor
+        model = models.MonthlyThreeFactor
         fields = (
-            'pk', 
-            'created', 
-            'last_updated', 
+            'interval', 
+            'MktRF', 
+            'SMB', 
+            'HML', 
+            'RF', 
+        )
+
+
+class YearlyThreeFactorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.YearlyThreeFactor
+        fields = (
+            'interval', 
+            'MktRF', 
+            'SMB', 
+            'HML', 
+            'RF', 
+        )
+
+
+class DailyFiveFactorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DailyFiveFactor
+        fields = (
+            'interval', 
+            'MktRF', 
+            'SMB', 
+            'HML', 
+            'RF', 
+            'RMW', 
+            'CMA', 
+        )
+
+
+class MonthlyFiveFactorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.MonthlyFiveFactor
+        fields = (
+            'interval', 
+            'MktRF', 
+            'SMB', 
+            'HML', 
+            'RF', 
+            'RMW', 
+            'CMA', 
+        )
+
+
+class AnnuallyFiveFactorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.AnnuallyFiveFactor
+        fields = (
+            'interval', 
+            'MktRF', 
+            'SMB', 
+            'HML', 
+            'RF', 
             'RMW', 
             'CMA', 
         )
