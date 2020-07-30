@@ -1,7 +1,7 @@
 from . import models
 from . import serializers
-from rest_framework import viewsets, permissions
-
+from rest_framework import viewsets, permissions, generics
+from rest_framework.exceptions import ValidationError
 
 class DailyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
     """ViewSet for the DailyECBRiskFreeRate class"""
@@ -14,7 +14,17 @@ class DailyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
 class MonthlyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
     """ViewSet for the MonthlyECBRiskFreeRate class"""
 
+
     queryset = models.MonthlyECBRiskFreeRate.objects.all()
+
+    def get_queryset(self):
+        from_ = self.request.GET.get("from")
+        if not from_:
+            raise ValidationError({"error":"!!!"})
+        to_ = self.request.GET.get("to")
+
+        return models.MonthlyECBRiskFreeRate.objects.filter(interval__range=[from_, to_])
+
     serializer_class = serializers.MonthlyECBRiskFreeRateSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -39,6 +49,15 @@ class MonthlyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
     """ViewSet for the MonthlyExchangeRateUSDPerX class"""
 
     queryset = models.MonthlyExchangeRateUSDPerX.objects.all()
+
+    def get_queryset(self):
+        from_ = self.request.GET.get("from")
+        if not from_:
+            raise ValidationError({"error":"!!!"})
+        to_ = self.request.GET.get("to")
+
+        return models.MonthlyECBRiskFreeRate.objects.filter(interval__range=[from_, to_]).values()
+
     serializer_class = serializers.MonthlyExchangeRateUSDPerXSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
