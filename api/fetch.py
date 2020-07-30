@@ -77,12 +77,14 @@ def get_french_data(zip_filename, csv_filename, freq):
         column_names = ["interval", "MktRF", "SMB", "HML", "RF"]
 
     df = pd.DataFrame(tuple_list, columns=column_names).set_index("interval")
-    # Get date vector without missing dates
-    full_datevector = [date.strftime(
-        "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:7], end=df.index[-1])]
 
-    return df.reindex(full_datevector)
+    if freq == "D":
+        # Get date vector without missing dates
+        full_datevector = [date.strftime(
+            "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:7], end=df.index[-1])]
+        return df.reindex(full_datevector)
 
+    return df
 
 def get_ecb_riskfree_rates(freq):
     '''
@@ -142,11 +144,13 @@ def get_ecb_riskfree_rates(freq):
     df = pd.DataFrame(tuple_list, columns=[
                       "interval", "RF"]).set_index("interval")
 
-    # Get date vector without missing dates
-    full_datevector = [date.strftime(
-        "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:4], end=df.index[-1])]
-
-    return df.reindex(full_datevector)
+    if freq == "D":
+        # Get date vector without missing dates
+        full_datevector = [date.strftime(
+           "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:4], end=df.index[-1])]
+        return df.reindex(full_datevector)
+    
+    return df
 
 
 def get_boe_exchange_rates(freq):
@@ -214,16 +218,17 @@ def get_boe_exchange_rates(freq):
             df = df.join(pd.DataFrame(tuple_list, columns=[
                          "interval", "USD/" + key]).set_index("interval"))
 
-    # Get date vector without missing dates
-    full_datevector = [date.strftime(
-        "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:4], end=df.index[-1])]
+    if freq == "D":
+        # Get date vector without missing dates
+        full_datevector = [date.strftime(
+            "%Y-%m-%d") for date in pd.date_range(start=df.index[0][:4], end=df.index[-1])]
+        return df.reindex(full_datevector)
 
-    return df.reindex(full_datevector)
-
+    return df
+'''
 def main():
 
     # TODO: Calculate exchange rate returns
-    '''
     exr_r_a = round((exr_a / exr_a.shift(periods=1) - 1).iloc[1:,:], 8)
     exr_r_m = round((exr_m / exr_m.shift(periods=1) - 1).iloc[1:,:], 8)
     exr_r_d = round((exr_d / exr_d.shift(periods=1) - 1).iloc[1:,:], 8)
@@ -253,10 +258,6 @@ def main():
     get_french_data('F-F_Momentum_Factor_CSV', 'F-F_Momentum_Factor.CSV', freq='A')
     get_french_data('F-F_Momentum_Factor_CSV', 'F-F_Momentum_Factor.CSV', freq='M')
     get_french_data('F-F_Momentum_Factor_daily_CSV', 'F-F_Momentum_Factor_daily.CSV', freq='D')
-    '''
-print(get_french_data('F-F_Research_Data_Factors_daily_CSV',
-                      'F-F_Research_Data_Factors_daily.CSV', freq='D'))
-print(get_ecb_riskfree_rates(freq='D'))
-print(get_boe_exchange_rates(freq='D'))
+'''
 
 
