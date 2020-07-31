@@ -213,10 +213,10 @@ def get_boe_exchange_rates(freq):
 
         if df.empty:
             df = pd.DataFrame(tuple_list, columns=[
-                              "interval", "USD/" + key]).set_index("interval")
+                              "interval", key]).set_index("interval")
         else:
             df = df.join(pd.DataFrame(tuple_list, columns=[
-                         "interval", "USD/" + key]).set_index("interval"))
+                         "interval", key]).set_index("interval"))
 
     if freq == "D":
         # Get date vector without missing dates
