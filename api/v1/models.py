@@ -15,7 +15,7 @@ class DailyECBRiskFreeRate(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -29,7 +29,7 @@ class MonthlyECBRiskFreeRate(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -43,7 +43,7 @@ class AnnuallyECBRiskFreeRate(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -57,16 +57,16 @@ class DailyExchangeRateUSDPerX(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8)
-    JPY = DecimalField(max_digits=10, decimal_places=8)
-    GBP = DecimalField(max_digits=10, decimal_places=8)
-    CHF = DecimalField(max_digits=10, decimal_places=8)
-    RUB = DecimalField(max_digits=10, decimal_places=8)
-    AUD = DecimalField(max_digits=10, decimal_places=8)
-    BRL = DecimalField(max_digits=10, decimal_places=8)
-    CAD = DecimalField(max_digits=10, decimal_places=8)
-    CNY = DecimalField(max_digits=10, decimal_places=8)
-    INR = DecimalField(max_digits=10, decimal_places=8)
+    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
+    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -80,16 +80,16 @@ class MonthlyExchangeRateUSDPerX(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8)
-    JPY = DecimalField(max_digits=10, decimal_places=8)
-    GBP = DecimalField(max_digits=10, decimal_places=8)
-    CHF = DecimalField(max_digits=10, decimal_places=8)
-    RUB = DecimalField(max_digits=10, decimal_places=8)
-    AUD = DecimalField(max_digits=10, decimal_places=8)
-    BRL = DecimalField(max_digits=10, decimal_places=8)
-    CAD = DecimalField(max_digits=10, decimal_places=8)
-    CNY = DecimalField(max_digits=10, decimal_places=8)
-    INR = DecimalField(max_digits=10, decimal_places=8)
+    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
+    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -103,16 +103,16 @@ class AnnuallyExchangeRateUSDPerX(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8)
-    JPY = DecimalField(max_digits=10, decimal_places=8)
-    GBP = DecimalField(max_digits=10, decimal_places=8)
-    CHF = DecimalField(max_digits=10, decimal_places=8)
-    RUB = DecimalField(max_digits=10, decimal_places=8)
-    AUD = DecimalField(max_digits=10, decimal_places=8)
-    BRL = DecimalField(max_digits=10, decimal_places=8)
-    CAD = DecimalField(max_digits=10, decimal_places=8)
-    CNY = DecimalField(max_digits=10, decimal_places=8)
-    INR = DecimalField(max_digits=10, decimal_places=8)
+    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
+    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -126,10 +126,10 @@ class DailyThreeFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -143,10 +143,10 @@ class MonthlyThreeFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -160,10 +160,10 @@ class YearlyThreeFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -177,12 +177,12 @@ class DailyFiveFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
-    RMW = DecimalField(max_digits=10, decimal_places=8)
-    CMA = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -196,12 +196,12 @@ class MonthlyFiveFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
-    RMW = DecimalField(max_digits=10, decimal_places=8)
-    CMA = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
@@ -215,12 +215,12 @@ class AnnuallyFiveFactor(models.Model):
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
     interval = CharField(max_length=10, primary_key=True)
-    MktRF = DecimalField(max_digits=10, decimal_places=8)
-    SMB = DecimalField(max_digits=10, decimal_places=8)
-    HML = DecimalField(max_digits=10, decimal_places=8)
-    RF = DecimalField(max_digits=10, decimal_places=8)
-    RMW = DecimalField(max_digits=10, decimal_places=8)
-    CMA = DecimalField(max_digits=10, decimal_places=8)
+    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
 
 
     class Meta:
