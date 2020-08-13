@@ -1,10 +1,24 @@
 import unittest
-from django.urls import reverse
-from django.test import Client
-from .models import DailyECBRiskFreeRate, MonthlyECBRiskFreeRate, AnnuallyECBRiskFreeRate, DailyExchangeRateUSDPerX, MonthlyExchangeRateUSDPerX, AnnuallyExchangeRateUSDPerX, DailyThreeFactor, MonthlyThreeFactor, YearlyThreeFactor, DailyFiveFactor, MonthlyFiveFactor, AnnuallyFiveFactor
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
+
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
+from django.test import Client
+from django.urls import reverse
+
+from .models import (
+    AnnuallyECBRiskFreeRate,
+    AnnuallyExchangeRateUSDPerX,
+    AnnuallyFiveFactor,
+    DailyECBRiskFreeRate,
+    DailyExchangeRateUSDPerX,
+    DailyFiveFactor,
+    DailyThreeFactor,
+    MonthlyECBRiskFreeRate,
+    MonthlyExchangeRateUSDPerX,
+    MonthlyFiveFactor,
+    MonthlyThreeFactor,
+    YearlyThreeFactor,
+)
 
 
 def create_django_contrib_auth_models_user(**kwargs):
@@ -176,19 +190,20 @@ def create_annuallyfivefactor(**kwargs):
 
 
 class DailyECBRiskFreeRateViewTest(unittest.TestCase):
-    '''
+    """
     Tests for DailyECBRiskFreeRate
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_dailyecbriskfreerate(self):
-        url = reverse('v1_dailyecbriskfreerate_list')
+        url = reverse("v1_dailyecbriskfreerate_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_dailyecbriskfreerate(self):
-        url = reverse('v1_dailyecbriskfreerate_create')
+        url = reverse("v1_dailyecbriskfreerate_create")
         data = {
             "interval": "interval",
             "RF": "RF",
@@ -198,7 +213,7 @@ class DailyECBRiskFreeRateViewTest(unittest.TestCase):
 
     def test_detail_dailyecbriskfreerate(self):
         dailyecbriskfreerate = create_dailyecbriskfreerate()
-        url = reverse('v1_dailyecbriskfreerate_detail', args=[dailyecbriskfreerate.pk,])
+        url = reverse("v1_dailyecbriskfreerate_detail", args=[dailyecbriskfreerate.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -208,25 +223,26 @@ class DailyECBRiskFreeRateViewTest(unittest.TestCase):
             "interval": "interval",
             "RF": "RF",
         }
-        url = reverse('v1_dailyecbriskfreerate_update', args=[dailyecbriskfreerate.pk,])
+        url = reverse("v1_dailyecbriskfreerate_update", args=[dailyecbriskfreerate.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class MonthlyECBRiskFreeRateViewTest(unittest.TestCase):
-    '''
+    """
     Tests for MonthlyECBRiskFreeRate
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_monthlyecbriskfreerate(self):
-        url = reverse('v1_monthlyecbriskfreerate_list')
+        url = reverse("v1_monthlyecbriskfreerate_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_monthlyecbriskfreerate(self):
-        url = reverse('v1_monthlyecbriskfreerate_create')
+        url = reverse("v1_monthlyecbriskfreerate_create")
         data = {
             "interval": "interval",
             "RF": "RF",
@@ -236,7 +252,9 @@ class MonthlyECBRiskFreeRateViewTest(unittest.TestCase):
 
     def test_detail_monthlyecbriskfreerate(self):
         monthlyecbriskfreerate = create_monthlyecbriskfreerate()
-        url = reverse('v1_monthlyecbriskfreerate_detail', args=[monthlyecbriskfreerate.pk,])
+        url = reverse(
+            "v1_monthlyecbriskfreerate_detail", args=[monthlyecbriskfreerate.pk,]
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -246,25 +264,28 @@ class MonthlyECBRiskFreeRateViewTest(unittest.TestCase):
             "interval": "interval",
             "RF": "RF",
         }
-        url = reverse('v1_monthlyecbriskfreerate_update', args=[monthlyecbriskfreerate.pk,])
+        url = reverse(
+            "v1_monthlyecbriskfreerate_update", args=[monthlyecbriskfreerate.pk,]
+        )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class AnnuallyECBRiskFreeRateViewTest(unittest.TestCase):
-    '''
+    """
     Tests for AnnuallyECBRiskFreeRate
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_annuallyecbriskfreerate(self):
-        url = reverse('v1_annuallyecbriskfreerate_list')
+        url = reverse("v1_annuallyecbriskfreerate_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_annuallyecbriskfreerate(self):
-        url = reverse('v1_annuallyecbriskfreerate_create')
+        url = reverse("v1_annuallyecbriskfreerate_create")
         data = {
             "interval": "interval",
             "RF": "RF",
@@ -274,7 +295,9 @@ class AnnuallyECBRiskFreeRateViewTest(unittest.TestCase):
 
     def test_detail_annuallyecbriskfreerate(self):
         annuallyecbriskfreerate = create_annuallyecbriskfreerate()
-        url = reverse('v1_annuallyecbriskfreerate_detail', args=[annuallyecbriskfreerate.pk,])
+        url = reverse(
+            "v1_annuallyecbriskfreerate_detail", args=[annuallyecbriskfreerate.pk,]
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -284,25 +307,28 @@ class AnnuallyECBRiskFreeRateViewTest(unittest.TestCase):
             "interval": "interval",
             "RF": "RF",
         }
-        url = reverse('v1_annuallyecbriskfreerate_update', args=[annuallyecbriskfreerate.pk,])
+        url = reverse(
+            "v1_annuallyecbriskfreerate_update", args=[annuallyecbriskfreerate.pk,]
+        )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class DailyExchangeRateUSDPerXViewTest(unittest.TestCase):
-    '''
+    """
     Tests for DailyExchangeRateUSDPerX
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_dailyexchangerateusdperx(self):
-        url = reverse('v1_dailyexchangerateusdperx_list')
+        url = reverse("v1_dailyexchangerateusdperx_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_dailyexchangerateusdperx(self):
-        url = reverse('v1_dailyexchangerateusdperx_create')
+        url = reverse("v1_dailyexchangerateusdperx_create")
         data = {
             "interval": "interval",
             "EUR": "EUR",
@@ -321,7 +347,9 @@ class DailyExchangeRateUSDPerXViewTest(unittest.TestCase):
 
     def test_detail_dailyexchangerateusdperx(self):
         dailyexchangerateusdperx = create_dailyexchangerateusdperx()
-        url = reverse('v1_dailyexchangerateusdperx_detail', args=[dailyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_dailyexchangerateusdperx_detail", args=[dailyexchangerateusdperx.pk,]
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -340,25 +368,28 @@ class DailyExchangeRateUSDPerXViewTest(unittest.TestCase):
             "CNY": "CNY",
             "INR": "INR",
         }
-        url = reverse('v1_dailyexchangerateusdperx_update', args=[dailyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_dailyexchangerateusdperx_update", args=[dailyexchangerateusdperx.pk,]
+        )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class MonthlyExchangeRateUSDPerXViewTest(unittest.TestCase):
-    '''
+    """
     Tests for MonthlyExchangeRateUSDPerX
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_monthlyexchangerateusdperx(self):
-        url = reverse('v1_monthlyexchangerateusdperx_list')
+        url = reverse("v1_monthlyexchangerateusdperx_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_monthlyexchangerateusdperx(self):
-        url = reverse('v1_monthlyexchangerateusdperx_create')
+        url = reverse("v1_monthlyexchangerateusdperx_create")
         data = {
             "interval": "interval",
             "EUR": "EUR",
@@ -377,7 +408,10 @@ class MonthlyExchangeRateUSDPerXViewTest(unittest.TestCase):
 
     def test_detail_monthlyexchangerateusdperx(self):
         monthlyexchangerateusdperx = create_monthlyexchangerateusdperx()
-        url = reverse('v1_monthlyexchangerateusdperx_detail', args=[monthlyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_monthlyexchangerateusdperx_detail",
+            args=[monthlyexchangerateusdperx.pk,],
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -396,25 +430,29 @@ class MonthlyExchangeRateUSDPerXViewTest(unittest.TestCase):
             "CNY": "CNY",
             "INR": "INR",
         }
-        url = reverse('v1_monthlyexchangerateusdperx_update', args=[monthlyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_monthlyexchangerateusdperx_update",
+            args=[monthlyexchangerateusdperx.pk,],
+        )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class AnnuallyExchangeRateUSDPerXViewTest(unittest.TestCase):
-    '''
+    """
     Tests for AnnuallyExchangeRateUSDPerX
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_annuallyexchangerateusdperx(self):
-        url = reverse('v1_annuallyexchangerateusdperx_list')
+        url = reverse("v1_annuallyexchangerateusdperx_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_annuallyexchangerateusdperx(self):
-        url = reverse('v1_annuallyexchangerateusdperx_create')
+        url = reverse("v1_annuallyexchangerateusdperx_create")
         data = {
             "interval": "interval",
             "EUR": "EUR",
@@ -433,7 +471,10 @@ class AnnuallyExchangeRateUSDPerXViewTest(unittest.TestCase):
 
     def test_detail_annuallyexchangerateusdperx(self):
         annuallyexchangerateusdperx = create_annuallyexchangerateusdperx()
-        url = reverse('v1_annuallyexchangerateusdperx_detail', args=[annuallyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_annuallyexchangerateusdperx_detail",
+            args=[annuallyexchangerateusdperx.pk,],
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -452,25 +493,29 @@ class AnnuallyExchangeRateUSDPerXViewTest(unittest.TestCase):
             "CNY": "CNY",
             "INR": "INR",
         }
-        url = reverse('v1_annuallyexchangerateusdperx_update', args=[annuallyexchangerateusdperx.pk,])
+        url = reverse(
+            "v1_annuallyexchangerateusdperx_update",
+            args=[annuallyexchangerateusdperx.pk,],
+        )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class DailyThreeFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for DailyThreeFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_dailythreefactor(self):
-        url = reverse('v1_dailythreefactor_list')
+        url = reverse("v1_dailythreefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_dailythreefactor(self):
-        url = reverse('v1_dailythreefactor_create')
+        url = reverse("v1_dailythreefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -483,7 +528,7 @@ class DailyThreeFactorViewTest(unittest.TestCase):
 
     def test_detail_dailythreefactor(self):
         dailythreefactor = create_dailythreefactor()
-        url = reverse('v1_dailythreefactor_detail', args=[dailythreefactor.pk,])
+        url = reverse("v1_dailythreefactor_detail", args=[dailythreefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -496,25 +541,26 @@ class DailyThreeFactorViewTest(unittest.TestCase):
             "HML": "HML",
             "RF": "RF",
         }
-        url = reverse('v1_dailythreefactor_update', args=[dailythreefactor.pk,])
+        url = reverse("v1_dailythreefactor_update", args=[dailythreefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class MonthlyThreeFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for MonthlyThreeFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_monthlythreefactor(self):
-        url = reverse('v1_monthlythreefactor_list')
+        url = reverse("v1_monthlythreefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_monthlythreefactor(self):
-        url = reverse('v1_monthlythreefactor_create')
+        url = reverse("v1_monthlythreefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -527,7 +573,7 @@ class MonthlyThreeFactorViewTest(unittest.TestCase):
 
     def test_detail_monthlythreefactor(self):
         monthlythreefactor = create_monthlythreefactor()
-        url = reverse('v1_monthlythreefactor_detail', args=[monthlythreefactor.pk,])
+        url = reverse("v1_monthlythreefactor_detail", args=[monthlythreefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -540,25 +586,26 @@ class MonthlyThreeFactorViewTest(unittest.TestCase):
             "HML": "HML",
             "RF": "RF",
         }
-        url = reverse('v1_monthlythreefactor_update', args=[monthlythreefactor.pk,])
+        url = reverse("v1_monthlythreefactor_update", args=[monthlythreefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class YearlyThreeFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for YearlyThreeFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_yearlythreefactor(self):
-        url = reverse('v1_yearlythreefactor_list')
+        url = reverse("v1_yearlythreefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_yearlythreefactor(self):
-        url = reverse('v1_yearlythreefactor_create')
+        url = reverse("v1_yearlythreefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -571,7 +618,7 @@ class YearlyThreeFactorViewTest(unittest.TestCase):
 
     def test_detail_yearlythreefactor(self):
         yearlythreefactor = create_yearlythreefactor()
-        url = reverse('v1_yearlythreefactor_detail', args=[yearlythreefactor.pk,])
+        url = reverse("v1_yearlythreefactor_detail", args=[yearlythreefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -584,25 +631,26 @@ class YearlyThreeFactorViewTest(unittest.TestCase):
             "HML": "HML",
             "RF": "RF",
         }
-        url = reverse('v1_yearlythreefactor_update', args=[yearlythreefactor.pk,])
+        url = reverse("v1_yearlythreefactor_update", args=[yearlythreefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class DailyFiveFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for DailyFiveFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_dailyfivefactor(self):
-        url = reverse('v1_dailyfivefactor_list')
+        url = reverse("v1_dailyfivefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_dailyfivefactor(self):
-        url = reverse('v1_dailyfivefactor_create')
+        url = reverse("v1_dailyfivefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -617,7 +665,7 @@ class DailyFiveFactorViewTest(unittest.TestCase):
 
     def test_detail_dailyfivefactor(self):
         dailyfivefactor = create_dailyfivefactor()
-        url = reverse('v1_dailyfivefactor_detail', args=[dailyfivefactor.pk,])
+        url = reverse("v1_dailyfivefactor_detail", args=[dailyfivefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -632,25 +680,26 @@ class DailyFiveFactorViewTest(unittest.TestCase):
             "RMW": "RMW",
             "CMA": "CMA",
         }
-        url = reverse('v1_dailyfivefactor_update', args=[dailyfivefactor.pk,])
+        url = reverse("v1_dailyfivefactor_update", args=[dailyfivefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class MonthlyFiveFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for MonthlyFiveFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_monthlyfivefactor(self):
-        url = reverse('v1_monthlyfivefactor_list')
+        url = reverse("v1_monthlyfivefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_monthlyfivefactor(self):
-        url = reverse('v1_monthlyfivefactor_create')
+        url = reverse("v1_monthlyfivefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -665,7 +714,7 @@ class MonthlyFiveFactorViewTest(unittest.TestCase):
 
     def test_detail_monthlyfivefactor(self):
         monthlyfivefactor = create_monthlyfivefactor()
-        url = reverse('v1_monthlyfivefactor_detail', args=[monthlyfivefactor.pk,])
+        url = reverse("v1_monthlyfivefactor_detail", args=[monthlyfivefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -680,25 +729,26 @@ class MonthlyFiveFactorViewTest(unittest.TestCase):
             "RMW": "RMW",
             "CMA": "CMA",
         }
-        url = reverse('v1_monthlyfivefactor_update', args=[monthlyfivefactor.pk,])
+        url = reverse("v1_monthlyfivefactor_update", args=[monthlyfivefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
 
 class AnnuallyFiveFactorViewTest(unittest.TestCase):
-    '''
+    """
     Tests for AnnuallyFiveFactor
-    '''
+    """
+
     def setUp(self):
         self.client = Client()
 
     def test_list_annuallyfivefactor(self):
-        url = reverse('v1_annuallyfivefactor_list')
+        url = reverse("v1_annuallyfivefactor_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_create_annuallyfivefactor(self):
-        url = reverse('v1_annuallyfivefactor_create')
+        url = reverse("v1_annuallyfivefactor_create")
         data = {
             "interval": "interval",
             "MktRF": "MktRF",
@@ -713,7 +763,7 @@ class AnnuallyFiveFactorViewTest(unittest.TestCase):
 
     def test_detail_annuallyfivefactor(self):
         annuallyfivefactor = create_annuallyfivefactor()
-        url = reverse('v1_annuallyfivefactor_detail', args=[annuallyfivefactor.pk,])
+        url = reverse("v1_annuallyfivefactor_detail", args=[annuallyfivefactor.pk,])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -728,7 +778,6 @@ class AnnuallyFiveFactorViewTest(unittest.TestCase):
             "RMW": "RMW",
             "CMA": "CMA",
         }
-        url = reverse('v1_annuallyfivefactor_update', args=[annuallyfivefactor.pk,])
+        url = reverse("v1_annuallyfivefactor_update", args=[annuallyfivefactor.pk,])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
-
