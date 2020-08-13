@@ -1,7 +1,7 @@
 .ONESHELL:
 
 migrate: makemigrations
-	cd api 
+	cd api
 	python manage.py migrate
 
 makemigrations:

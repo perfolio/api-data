@@ -1,175 +1,156 @@
-from . import models
-
 from rest_framework import serializers
 
+from . import models
 
-class DailyECBRiskFreeRateSerializer(serializers.ModelSerializer):
 
+class DailyRiskFreeRateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DailyECBRiskFreeRate
+        model = models.DailyRiskFreeRate
         fields = (
-            'interval', 
-            'RF', 
+            "interval",
+            "RF",
         )
 
 
-class MonthlyECBRiskFreeRateSerializer(serializers.ModelSerializer):
-
+class MonthlyRiskFreeRateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.MonthlyECBRiskFreeRate
+        model = models.MonthlyRiskFreeRate
         fields = (
-            'interval', 
-            'RF', 
+            "interval",
+            "RF",
         )
 
 
-class AnnuallyECBRiskFreeRateSerializer(serializers.ModelSerializer):
-
+class AnnuallyRiskFreeRateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.AnnuallyECBRiskFreeRate
+        model = models.AnnuallyRiskFreeRate
         fields = (
-            'interval', 
-            'RF', 
+            "interval",
+            "RF",
         )
 
 
 class DailyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.DailyExchangeRateUSDPerX
         fields = (
-            'interval', 
-            'EUR', 
-            'JPY', 
-            'GBP', 
-            'CHF', 
-            'RUB', 
-            'AUD', 
-            'BRL', 
-            'CAD', 
-            'CNY', 
-            'INR', 
+            "interval",
+            "EUR",
+            "JPY",
+            "GBP",
+            "CHF",
+            "RUB",
+            "AUD",
+            "BRL",
+            "CAD",
+            "CNY",
+            "INR",
         )
 
 
 class MonthlyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.MonthlyExchangeRateUSDPerX
         fields = (
-            'interval', 
-            'EUR', 
-            'JPY', 
-            'GBP', 
-            'CHF', 
-            'RUB', 
-            'AUD', 
-            'BRL', 
-            'CAD', 
-            'CNY', 
-            'INR', 
+            "interval",
+            "EUR",
+            "JPY",
+            "GBP",
+            "CHF",
+            "RUB",
+            "AUD",
+            "BRL",
+            "CAD",
+            "CNY",
+            "INR",
         )
 
 
 class AnnuallyExchangeRateUSDPerXSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.AnnuallyExchangeRateUSDPerX
         fields = (
-            'interval', 
-            'EUR', 
-            'JPY', 
-            'GBP', 
-            'CHF', 
-            'RUB', 
-            'AUD', 
-            'BRL', 
-            'CAD', 
-            'CNY', 
-            'INR', 
+            "interval",
+            "EUR",
+            "JPY",
+            "GBP",
+            "CHF",
+            "RUB",
+            "AUD",
+            "BRL",
+            "CAD",
+            "CNY",
+            "INR",
         )
 
 
-class DailyThreeFactorSerializer(serializers.ModelSerializer):
-
+class DailyThreeFourFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DailyThreeFactor
-        fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
-        )
+        model = models.DailyThreeFourFactor
+        fields = ("interval", "MktRF", "SMB", "HML", "MOM", "region", "currency")
 
 
-class MonthlyThreeFactorSerializer(serializers.ModelSerializer):
-
+class MonthlyThreeFourFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.MonthlyThreeFactor
+        model = models.MonthlyThreeFourFactor
         fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
+            "interval",
+            "MktRF",
+            "SMB",
+            "HML",
+            "RF",
         )
 
 
-class YearlyThreeFactorSerializer(serializers.ModelSerializer):
-
+class YearlyThreeFourFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.YearlyThreeFactor
+        model = models.AnnuallyThreeFourFactor
         fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
+            "interval",
+            "MktRF",
+            "SMB",
+            "HML",
+            "RF",
         )
 
 
-class DailyFiveFactorSerializer(serializers.ModelSerializer):
-
+class DailyFiveSixFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DailyFiveFactor
+        model = models.DailyFiveSixFactor
         fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
-            'RMW', 
-            'CMA', 
+            "interval",
+            "MktRF",
+            "SMB",
+            "HML",
+            "RF",
+            "RMW",
+            "CMA",
         )
 
 
-class MonthlyFiveFactorSerializer(serializers.ModelSerializer):
-
+class MonthlyFiveSixFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.MonthlyFiveFactor
+        model = models.MonthlyFiveSixFactor
         fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
-            'RMW', 
-            'CMA', 
+            "interval",
+            "MktRF",
+            "SMB",
+            "HML",
+            "RF",
+            "RMW",
+            "CMA",
         )
 
 
-class AnnuallyFiveFactorSerializer(serializers.ModelSerializer):
-
+class AnnuallyFiveSixFactorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.AnnuallyFiveFactor
+        model = models.AnnuallyFiveSixFactor
         fields = (
-            'interval', 
-            'MktRF', 
-            'SMB', 
-            'HML', 
-            'RF', 
-            'RMW', 
-            'CMA', 
+            "interval",
+            "MktRF",
+            "SMB",
+            "HML",
+            "RF",
+            "RMW",
+            "CMA",
         )
-

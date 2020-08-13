@@ -4,14 +4,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    assignees: 
+    assignees:
       - "webersni"
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-    assignees: 
+    assignees:
       - "webersni"
 
   - package-ecosystem: "github-actions"

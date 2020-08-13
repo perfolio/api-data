@@ -1,47 +1,62 @@
-from django.contrib import admin
 from django import forms
-from .models import DailyECBRiskFreeRate, MonthlyECBRiskFreeRate, AnnuallyECBRiskFreeRate, DailyExchangeRateUSDPerX, MonthlyExchangeRateUSDPerX, AnnuallyExchangeRateUSDPerX, DailyThreeFactor, MonthlyThreeFactor, YearlyThreeFactor, DailyFiveFactor, MonthlyFiveFactor, AnnuallyFiveFactor
+from django.contrib import admin
 
-class DailyECBRiskFreeRateAdminForm(forms.ModelForm):
+from .models import (
+    AnnuallyExchangeRateUSDPerX,
+    AnnuallyFiveSixFactor,
+    AnnuallyRiskFreeRate,
+    AnnuallyThreeFourFactor,
+    DailyExchangeRateUSDPerX,
+    DailyFiveSixFactor,
+    DailyRiskFreeRate,
+    DailyThreeFourFactor,
+    MonthlyExchangeRateUSDPerX,
+    MonthlyFiveSixFactor,
+    MonthlyRiskFreeRate,
+    MonthlyThreeFourFactor,
+)
+
+"""
+class DailyRiskFreeRateAdminForm(forms.ModelForm):
 
     class Meta:
-        model = DailyECBRiskFreeRate
+        model = DailyRiskFreeRate
         fields = '__all__'
 
 
-class DailyECBRiskFreeRateAdmin(admin.ModelAdmin):
-    form = DailyECBRiskFreeRateAdminForm
+class DailyRiskFreeRateAdmin(admin.ModelAdmin):
+    form = DailyRiskFreeRateAdminForm
     list_display = ['created', 'last_updated', 'interval', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(DailyECBRiskFreeRate, DailyECBRiskFreeRateAdmin)
+admin.site.register(DailyRiskFreeRate, DailyRiskFreeRateAdmin)
 
 
-class MonthlyECBRiskFreeRateAdminForm(forms.ModelForm):
+class MonthlyRiskFreeRateAdminForm(forms.ModelForm):
 
     class Meta:
-        model = MonthlyECBRiskFreeRate
+        model = MonthlyRiskFreeRate
         fields = '__all__'
 
 
-class MonthlyECBRiskFreeRateAdmin(admin.ModelAdmin):
-    form = MonthlyECBRiskFreeRateAdminForm
+class MonthlyRiskFreeRateAdmin(admin.ModelAdmin):
+    form = MonthlyRiskFreeRateAdminForm
     list_display = ['created', 'last_updated', 'interval', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(MonthlyECBRiskFreeRate, MonthlyECBRiskFreeRateAdmin)
+admin.site.register(MonthlyRiskFreeRate, MonthlyRiskFreeRateAdmin)
 
 
-class AnnuallyECBRiskFreeRateAdminForm(forms.ModelForm):
+class AnnuallyRiskFreeRateAdminForm(forms.ModelForm):
 
     class Meta:
-        model = AnnuallyECBRiskFreeRate
+        model = AnnuallyRiskFreeRate
         fields = '__all__'
 
 
-class AnnuallyECBRiskFreeRateAdmin(admin.ModelAdmin):
-    form = AnnuallyECBRiskFreeRateAdminForm
+class AnnuallyRiskFreeRateAdmin(admin.ModelAdmin):
+    form = AnnuallyRiskFreeRateAdminForm
     list_display = ['created', 'last_updated', 'interval', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(AnnuallyECBRiskFreeRate, AnnuallyECBRiskFreeRateAdmin)
+admin.site.register(AnnuallyRiskFreeRate, AnnuallyRiskFreeRateAdmin)
 
 
 class DailyExchangeRateUSDPerXAdminForm(forms.ModelForm):
@@ -86,86 +101,87 @@ class AnnuallyExchangeRateUSDPerXAdmin(admin.ModelAdmin):
 admin.site.register(AnnuallyExchangeRateUSDPerX, AnnuallyExchangeRateUSDPerXAdmin)
 
 
-class DailyThreeFactorAdminForm(forms.ModelForm):
+class DailyThreeFourFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = DailyThreeFactor
+        model = DailyThreeFourFactor
         fields = '__all__'
 
 
-class DailyThreeFactorAdmin(admin.ModelAdmin):
-    form = DailyThreeFactorAdminForm
+class DailyThreeFourFactorAdmin(admin.ModelAdmin):
+    form = DailyThreeFourFactorAdminForm
     list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(DailyThreeFactor, DailyThreeFactorAdmin)
+admin.site.register(DailyThreeFourFactor, DailyThreeFourFactorAdmin)
 
 
-class MonthlyThreeFactorAdminForm(forms.ModelForm):
+class MonthlyThreeFourFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = MonthlyThreeFactor
+        model = MonthlyThreeFourFactor
         fields = '__all__'
 
 
-class MonthlyThreeFactorAdmin(admin.ModelAdmin):
-    form = MonthlyThreeFactorAdminForm
+class MonthlyThreeFourFactorAdmin(admin.ModelAdmin):
+    form = MonthlyThreeFourFactorAdminForm
     list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(MonthlyThreeFactor, MonthlyThreeFactorAdmin)
+admin.site.register(MonthlyThreeFourFactor, MonthlyThreeFourFactorAdmin)
 
 
-class YearlyThreeFactorAdminForm(forms.ModelForm):
+class YearlyThreeFourFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = YearlyThreeFactor
+        model = AnnuallyThreeFourFactor
         fields = '__all__'
 
 
-class YearlyThreeFactorAdmin(admin.ModelAdmin):
-    form = YearlyThreeFactorAdminForm
+class YearlyThreeFourFactorAdmin(admin.ModelAdmin):
+    form = YearlyThreeFourFactorAdminForm
     list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(YearlyThreeFactor, YearlyThreeFactorAdmin)
+admin.site.register(AnnuallyThreeFourFactor, YearlyThreeFourFactorAdmin)
 
 
-class DailyFiveFactorAdminForm(forms.ModelForm):
+class DailyFiveSixFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = DailyFiveFactor
+        model = DailyFiveSixFactor
         fields = '__all__'
 
 
-class DailyFiveFactorAdmin(admin.ModelAdmin):
-    form = DailyFiveFactorAdminForm
-    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF', 'RMW', 'CMA']
+class DailyFiveSixFactorAdmin(admin.ModelAdmin):
+    form = DailyFiveSixFactorAdminForm
+    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RMW', 'CMA']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(DailyFiveFactor, DailyFiveFactorAdmin)
+admin.site.register(DailyFiveSixFactor, DailyFiveSixFactorAdmin)
 
 
-class MonthlyFiveFactorAdminForm(forms.ModelForm):
+class MonthlyFiveSixFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = MonthlyFiveFactor
+        model = MonthlyFiveSixFactor
         fields = '__all__'
 
 
-class MonthlyFiveFactorAdmin(admin.ModelAdmin):
-    form = MonthlyFiveFactorAdminForm
-    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF', 'RMW', 'CMA']
+class MonthlyFiveSixFactorAdmin(admin.ModelAdmin):
+    form = MonthlyFiveSixFactorAdminForm
+    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RMW', 'CMA']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(MonthlyFiveFactor, MonthlyFiveFactorAdmin)
+admin.site.register(MonthlyFiveSixFactor, MonthlyFiveSixFactorAdmin)
 
 
-class AnnuallyFiveFactorAdminForm(forms.ModelForm):
+class AnnuallyFiveSixFactorAdminForm(forms.ModelForm):
 
     class Meta:
-        model = AnnuallyFiveFactor
+        model = AnnuallyFiveSixFactor
         fields = '__all__'
 
 
-class AnnuallyFiveFactorAdmin(admin.ModelAdmin):
-    form = AnnuallyFiveFactorAdminForm
-    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RF', 'RMW', 'CMA']
+class AnnuallyFiveSixFactorAdmin(admin.ModelAdmin):
+    form = AnnuallyFiveSixFactorAdminForm
+    list_display = ['created', 'last_updated', 'interval', 'MktRF', 'SMB', 'HML', 'RMW', 'CMA']
     readonly_fields = ['created', 'last_updated']
-admin.site.register(AnnuallyFiveFactor, AnnuallyFiveFactorAdmin)
+admin.site.register(AnnuallyFiveSixFactor, AnnuallyFiveSixFactorAdmin)
 
+"""

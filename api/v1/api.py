@@ -1,40 +1,43 @@
-from . import models
-from . import serializers
-from rest_framework import viewsets, permissions, generics
+from rest_framework import generics, permissions, viewsets
 from rest_framework.exceptions import ValidationError
 
-class DailyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyECBRiskFreeRate class"""
+from . import models, serializers
 
-    queryset = models.DailyECBRiskFreeRate.objects.all()
-    serializer_class = serializers.DailyECBRiskFreeRateSerializer
+
+class DailyRiskFreeRateViewSet(viewsets.ModelViewSet):
+    """ViewSet for the DailyRiskFreeRate class"""
+
+    queryset = models.DailyRiskFreeRate.objects.all()
+    serializer_class = serializers.DailyRiskFreeRateSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class MonthlyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyECBRiskFreeRate class"""
+class MonthlyRiskFreeRateViewSet(viewsets.ModelViewSet):
+    """ViewSet for the MonthlyRiskFreeRate class"""
 
-
-    queryset = models.MonthlyECBRiskFreeRate.objects.all()
+    queryset = models.MonthlyRiskFreeRate.objects.all()
 
     def get_queryset(self):
         from_ = self.request.GET.get("from")
         if not from_:
-            raise ValidationError({"error":"!!!"})
+            raise ValidationError({"error": "!!!"})
         to_ = self.request.GET.get("to")
 
-        return models.MonthlyECBRiskFreeRate.objects.filter(interval__range=[from_, to_])
+        return models.MonthlyRiskFreeRate.objects.filter(interval__range=[from_, to_])
 
-    serializer_class = serializers.MonthlyECBRiskFreeRateSerializer
+    serializer_class = serializers.MonthlyRiskFreeRateSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class AnnuallyECBRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyECBRiskFreeRate class"""
+class AnnuallyRiskFreeRateViewSet(viewsets.ModelViewSet):
+    """ViewSet for the AnnuallyRiskFreeRate class"""
 
-    queryset = models.AnnuallyECBRiskFreeRate.objects.all()
-    serializer_class = serializers.AnnuallyECBRiskFreeRateSerializer
+    queryset = models.AnnuallyRiskFreeRate.objects.all()
+    serializer_class = serializers.AnnuallyRiskFreeRateSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+### Exchange Rates ###
 
 
 class DailyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
@@ -52,11 +55,18 @@ class MonthlyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         from_ = self.request.GET.get("from")
-        if not from_:
-            raise ValidationError({"error":"!!!"})
-        to_ = self.request.GET.get("to")
+        if from_ is None:
+            raise ValidationError({"error": "!!!"})
 
-        return models.MonthlyECBRiskFreeRate.objects.filter(interval__range=[from_, to_]).values()
+        to_ = self.request.GET.get("to")
+        if to_ is None:
+            raise ValidationError({})
+
+        if self.kwargs["currency"] not in ["EUR", "JPY", "GBP"]:
+            raise ValidationError({"Error": "currency not supported."})
+        return models.MonthlyExchangeRateUSDPerX.objects.filter(
+            interval__range=[from_, to_]
+        ).values("interval", self.kwargs["currency"])
 
     serializer_class = serializers.MonthlyExchangeRateUSDPerXSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -70,50 +80,49 @@ class AnnuallyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class DailyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyThreeFactor class"""
+class DailyThreeFourFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the DailyThreeFourFactor class"""
 
-    queryset = models.DailyThreeFactor.objects.all()
-    serializer_class = serializers.DailyThreeFactorSerializer
+    queryset = models.DailyThreeFourFactor.objects.all()
+    serializer_class = serializers.DailyThreeFourFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class MonthlyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyThreeFactor class"""
+class MonthlyThreeFourFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the MonthlyThreeFourFactor class"""
 
-    queryset = models.MonthlyThreeFactor.objects.all()
-    serializer_class = serializers.MonthlyThreeFactorSerializer
+    queryset = models.MonthlyThreeFourFactor.objects.all()
+    serializer_class = serializers.MonthlyThreeFourFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class YearlyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the YearlyThreeFactor class"""
+class YearlyThreeFourFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the AnnuallyThreeFourFactor class"""
 
-    queryset = models.YearlyThreeFactor.objects.all()
-    serializer_class = serializers.YearlyThreeFactorSerializer
+    queryset = models.AnnuallyThreeFourFactor.objects.all()
+    serializer_class = serializers.YearlyThreeFourFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class DailyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyFiveFactor class"""
+class DailyFiveSixFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the DailyFiveSixFactor class"""
 
-    queryset = models.DailyFiveFactor.objects.all()
-    serializer_class = serializers.DailyFiveFactorSerializer
+    queryset = models.DailyFiveSixFactor.objects.all()
+    serializer_class = serializers.DailyFiveSixFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class MonthlyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyFiveFactor class"""
+class MonthlyFiveSixFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the MonthlyFiveSixFactor class"""
 
-    queryset = models.MonthlyFiveFactor.objects.all()
-    serializer_class = serializers.MonthlyFiveFactorSerializer
+    queryset = models.MonthlyFiveSixFactor.objects.all()
+    serializer_class = serializers.MonthlyFiveSixFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class AnnuallyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyFiveFactor class"""
+class AnnuallyFiveSixFactorViewSet(viewsets.ModelViewSet):
+    """ViewSet for the AnnuallyFiveSixFactor class"""
 
-    queryset = models.AnnuallyFiveFactor.objects.all()
-    serializer_class = serializers.AnnuallyFiveFactorSerializer
+    queryset = models.AnnuallyFiveSixFactor.objects.all()
+    serializer_class = serializers.AnnuallyFiveSixFactorSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
