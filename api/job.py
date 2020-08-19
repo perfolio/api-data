@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from util import (
     build_base_dataframes,
@@ -9,6 +8,7 @@ from util import (
     get_french_data,
 )
 from v1 import models
+from french_config import regions
 
 pd.options.mode.chained_assignment = None
 """
@@ -117,302 +117,40 @@ for currency in df_fxrates_r_d.columns:
 print(f"Pushing data to database... Done.\r")
 """
 
-regions = [
-    {
-        "name": "Developed",
-        "freq": [
-            {"link": "", "file": "", "model": models.DailyThreeFourFactor},
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-        ],
-    },
-    {
-        "name": "Developed_ex_US",
-        "freq": [
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-        ],
-    },
-    {
-        "name": "Europe",
-        "freq": [
-            {
-                "factors": {
-                    "link": "Europe_3_Factors_Daily_CSV",
-                    "file": "Europe_3_Factors_Daily.csv",
-                },
-                "mom": {
-                    "link": "Europe_MOM_Factor_Daily_CSV",
-                    "file": "Europe_MOM_Factor_Daily.csv",
-                },
-                "model": models.DailyThreeFourFactor,
-            },
-            {
-                "factors": {
-                    "link": "Europe_3_Factors_CSV",
-                    "file": "Europe_3_Factors.csv",
-                },
-                "mom": {
-                    "link": "Europe_MOM_Factor_CSV",
-                    "file": "Europe_MOM_Factor.csv",
-                },
-                "model": models.MonthlyThreeFourFactor,
-            },
-            {
-                "factors": {
-                    "link": "Europe_3_Factors_Daily_CSV",
-                    "file": "Europe_3_Factors_Daily.csv",
-                },
-                "mom": {
-                    "link": "Europe_MOM_Factor_Daily_CSV",
-                    "file": "Europe_MOM_Factor_Daily.csv",
-                },
-                "model": models.DailyThreeFourFactor,
-            },
-        ],
-    },
-    {
-        "name": "Japan",
-        "freq": [
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-        ],
-    },
-    {
-        "name": "Asia_Pacific_ex_Japan",
-        "freq": [
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-        ],
-    },
-    {
-        "name": "North_America",
-        "freq": [
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-            {"link": "", "file": "", "model": ""},
-        ],
-    },
-]
+for region in regions:
+    for f in region["freq"]:
+        df_3n4factors_usd = get_french_data(
+            f["3factors"], f["3factors"][:-4] + ".csv", freq=f["interval"]
+        )
+        df_5n6factors_usd = get_french_data(
+            f["5factors"], f["5factors"][:-4] + ".csv", freq=f["interval"]
+        )
+        df_mom_usd = get_french_data(
+            f["mom"], f["mom"][:-4] + ".csv", freq=f["interval"]
+        )
 
-# EUROPE #
+        df_3n4factors_usd, _ = build_base_dataframes(
+            df_factors=df_3n4factors_usd,
+            df_mom=df_mom_usd,
+            region=region["name"],
+        )
+        df_5n6factors_usd, _ = build_base_dataframes(
+            df_factors=df_5n6factors_usd,
+            df_mom=df_mom_usd,
+            region=region["name"],
+        )
 
-df_3n4factor_europe_usd_d = get_french_data(
-    "Europe_3_Factors_Daily_CSV", "Europe_3_Factors_Daily.csv", freq="D"
-)
-df_mom_europe_usd_d = get_french_data(
-    "Europe_MOM_Factor_Daily_CSV", "Europe_MOM_Factor_Daily.csv", freq="D"
-)
-df_3n4factor_europe_usd_d, _ = build_base_dataframes(
-    df_factors=df_3n4factor_europe_usd_d,
-    df_mom=df_mom_europe_usd_d,
-    region="Europe",
-    with_rf=False,
-)
-build_model(model=models.DailyThreeFourFactor, df=df_3n4factor_europe_usd_d)
+        if f["interval"] == "D":
+            model3n4 = models.DailyThreeFourFactor
+            model5n6 = models.DailyFiveSixFactor
+        elif f["interval"] == "M":
+            model3n4 = models.MonthlyThreeFourFactor
+            model5n6 = models.MonthlyFiveSixFactor
+        elif f["interval"] == "A":
+            model3n4 = models.AnnuallyThreeFourFactor
+            model5n6 = models.AnnuallyFiveSixFactor
 
-df_3n4factor_europe_usd_a = get_french_data(
-    "Europe_3_Factors_CSV", "Europe_3_Factors.csv", freq="A"
-)
-
-df_5factor_europe_usd_d = get_french_data(
-    "Europe_5_Factors_Daily_CSV", "Europe_5_Factors_Daily.csv", freq="D"
-)
-df_5factor_europe_usd_m = get_french_data(
-    "Europe_5_Factors_CSV", "Europe_5_Factors.csv", freq="M"
-)
-df_5factor_europe_usd_a = get_french_data(
-    "Europe_5_Factors_CSV", "Europe_5_Factors.csv", freq="A"
-)
-df_mom_europe_usd_m = get_french_data(
-    "Europe_MOM_Factor_CSV", "Europe_MOM_Factor.csv", freq="M"
-)
-df_mom_europe_usd_a = get_french_data(
-    "Europe_MOM_Factor_CSV", "Europe_MOM_Factor.csv", freq="A"
-)
-
-df_3n4factor_europe_d = df_3n4factor_europe_usd_d.copy()
-
-
-build_model(model=models.DailyThreeFourFactor, df=df_3n4factor_usa_d)
-
-
-# Japan #
-
-df_3factor_japan_d = get_french_data(
-    "Japan_3_Factors_Daily_CSV", "Japan_3_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_3factor_japan_m = get_french_data(
-    "Japan_3_Factors_CSV", "Japan_3_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_3factor_japan_a = get_french_data(
-    "Japan_3_Factors_CSV", "Japan_3_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_5factor_japan_d = get_french_data(
-    "Japan_5_Factors_Daily_CSV", "Japan_5_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_5factor_japan_m = get_french_data(
-    "Japan_5_Factors_CSV", "Japan_5_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_5factor_japan_a = get_french_data(
-    "Japan_5_Factors_CSV", "Japan_5_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_mom_japan_d = get_french_data(
-    "Japan_MOM_Factor_Daily_CSV", "Japan_MOM_Factor_Daily.csv", freq="D"
-)
-df_mom_japan_m = get_french_data(
-    "Japan_MOM_Factor_CSV", "Japan_MOM_Factor.csv", freq="M"
-)
-df_mom_japan_a = get_french_data(
-    "Japan_MOM_Factor_CSV", "Japan_MOM_Factor.csv", freq="A"
-)
-
-# Developed #
-
-df_3factor_developed_d = get_french_data(
-    "Developed_3_Factors_Daily_CSV", "Developed_3_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_3factor_developed_m = get_french_data(
-    "Developed_3_Factors_CSV", "Developed_3_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_3factor_developed_a = get_french_data(
-    "Developed_3_Factors_CSV", "Developed_3_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_5factor_developed_d = get_french_data(
-    "Developed_5_Factors_Daily_CSV", "Developed_5_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_5factor_developed_m = get_french_data(
-    "Developed_5_Factors_CSV", "Developed_5_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_5factor_developed_a = get_french_data(
-    "Developed_5_Factors_CSV", "Developed_5_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_mom_developed_d = get_french_data(
-    "Developed_MOM_Factor_Daily_CSV", "Developed_MOM_Factor_Daily.csv", freq="D"
-)
-df_mom_developed_m = get_french_data(
-    "Developed_MOM_Factor_CSV", "Developed_MOM_Factor.csv", freq="M"
-)
-df_mom_developed_a = get_french_data(
-    "Developed_MOM_Factor_CSV", "Developed_MOM_Factor.csv", freq="A"
-)
-
-# Developed_ex_US #
-
-df_3factor_developed_ex_US_d = get_french_data(
-    "Developed_ex_US_3_Factors_Daily_CSV",
-    "Developed_ex_US_3_Factors_Daily.csv",
-    freq="D",
-).drop(["RF"], axis=1)
-df_3factor_developed_ex_US_m = get_french_data(
-    "Developed_ex_US_3_Factors_CSV", "Developed_ex_US_3_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_3factor_developed_ex_US_a = get_french_data(
-    "Developed_ex_US_3_Factors_CSV", "Developed_ex_US_3_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_5factor_developed_ex_US_d = get_french_data(
-    "Developed_ex_US_5_Factors_Daily_CSV",
-    "Developed_ex_US_5_Factors_Daily.csv",
-    freq="D",
-).drop(["RF"], axis=1)
-df_5factor_developed_ex_US_m = get_french_data(
-    "Developed_ex_US_5_Factors_CSV", "Developed_ex_US_5_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_5factor_developed_ex_US_a = get_french_data(
-    "Developed_ex_US_5_Factors_CSV", "Developed_ex_US_5_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_mom_developed_ex_US_d = get_french_data(
-    "Developed_ex_US_MOM_Factor_Daily_CSV",
-    "Developed_ex_US_MOM_Factor_Daily.csv",
-    freq="D",
-)
-df_mom_developed_ex_US_m = get_french_data(
-    "Developed_ex_US_MOM_Factor_CSV", "Developed_ex_US_MOM_Factor.csv", freq="M"
-)
-df_mom_developed_ex_US_a = get_french_data(
-    "Developed_ex_US_MOM_Factor_CSV", "Developed_ex_US_MOM_Factor.csv", freq="A"
-)
-
-# Asia_Pacific_ex_Japan #
-
-df_3factor_Asia_Pacific_ex_Japan_d = get_french_data(
-    "Asia_Pacific_ex_Japan_3_Factors_Daily_CSV",
-    "Asia_Pacific_ex_Japan_3_Factors_Daily.csv",
-    freq="D",
-).drop(["RF"], axis=1)
-df_3factor_Asia_Pacific_ex_Japan_m = get_french_data(
-    "Asia_Pacific_ex_Japan_3_Factors_CSV",
-    "Asia_Pacific_ex_Japan_3_Factors.csv",
-    freq="M",
-).drop(["RF"], axis=1)
-df_3factor_Asia_Pacific_ex_Japan_a = get_french_data(
-    "Asia_Pacific_ex_Japan_3_Factors_CSV",
-    "Asia_Pacific_ex_Japan_3_Factors.csv",
-    freq="A",
-).drop(["RF"], axis=1)
-df_5factor_Asia_Pacific_ex_Japan_d = get_french_data(
-    "Asia_Pacific_ex_Japan_5_Factors_Daily_CSV",
-    "Asia_Pacific_ex_Japan_5_Factors_Daily.csv",
-    freq="D",
-).drop(["RF"], axis=1)
-df_5factor_Asia_Pacific_ex_Japan_m = get_french_data(
-    "Asia_Pacific_ex_Japan_5_Factors_CSV",
-    "Asia_Pacific_ex_Japan_5_Factors.csv",
-    freq="M",
-).drop(["RF"], axis=1)
-df_5factor_Asia_Pacific_ex_Japan_a = get_french_data(
-    "Asia_Pacific_ex_Japan_5_Factors_CSV",
-    "Asia_Pacific_ex_Japan_5_Factors.csv",
-    freq="A",
-).drop(["RF"], axis=1)
-df_mom_Asia_Pacific_ex_Japan_d = get_french_data(
-    "Asia_Pacific_ex_Japan_MOM_Factor_Daily_CSV",
-    "Asia_Pacific_ex_Japan_MOM_Factor_Daily.csv",
-    freq="D",
-)
-df_mom_Asia_Pacific_ex_Japan_m = get_french_data(
-    "Asia_Pacific_ex_Japan_MOM_Factor_CSV",
-    "Asia_Pacific_ex_Japan_MOM_Factor.csv",
-    freq="M",
-)
-df_mom_Asia_Pacific_ex_Japan_a = get_french_data(
-    "Asia_Pacific_ex_Japan_MOM_Factor_CSV",
-    "Asia_Pacific_ex_Japan_MOM_Factor.csv",
-    freq="A",
-)
-
-# North_America #
-
-df_3factor_north_america_d = get_french_data(
-    "North_America_3_Factors_Daily_CSV", "North_America_3_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_3factor_north_america_m = get_french_data(
-    "North_America_3_Factors_CSV", "North_America_3_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_3factor_north_america_a = get_french_data(
-    "North_America_3_Factors_CSV", "North_America_3_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_5factor_north_america_d = get_french_data(
-    "North_America_5_Factors_Daily_CSV", "North_America_5_Factors_Daily.csv", freq="D"
-).drop(["RF"], axis=1)
-df_5factor_north_america_m = get_french_data(
-    "North_America_5_Factors_CSV", "North_America_5_Factors.csv", freq="M"
-).drop(["RF"], axis=1)
-df_5factor_north_america_a = get_french_data(
-    "North_America_5_Factors_CSV", "North_America_5_Factors.csv", freq="A"
-).drop(["RF"], axis=1)
-df_mom_north_america_d = get_french_data(
-    "North_America_MOM_Factor_Daily_CSV", "North_America_MOM_Factor_Daily.csv", freq="D"
-)
-df_mom_north_america_m = get_french_data(
-    "North_America_MOM_Factor_CSV", "North_America_MOM_Factor.csv", freq="M"
-)
-df_mom_north_america_a = get_french_data(
-    "North_America_MOM_Factor_CSV", "North_America_MOM_Factor.csv", freq="A"
-)
-
+        build_model(model=model3n4, df=df_3n4factors_usd)
+        build_model(model=model5n6, df=df_5n6factors_usd)
 
 print("Finished data import successfully!")
