@@ -1,4 +1,6 @@
-provider "docker" {}
+provider "docker" {
+  host = "ssh://terraform@116.203.55.6:22"
+}
 
 resource "docker_network" "global" {
   name = "global"
@@ -18,13 +20,13 @@ resource "docker_container" "factor" {
   image   = docker_image.factor.latest
   restart = "always"
 
-#   command = ["/code/api/manage.py runserver"]
-#   env     = ["SERVICE_ADDRESS=0.0.0.0:52000"]
+  #   command = ["/code/api/manage.py runserver"]
+  #   env     = ["SERVICE_ADDRESS=0.0.0.0:52000"]
   ports {
     internal = 8000
     external = 8000
   }
-  
+
   networks_advanced {
     name = docker_network.global.name
   }
