@@ -56,7 +56,9 @@ def get_french_data(zip_filename, csv_filename, freq):
         reader = csv.reader(file)
         for row in reader:
             # Look for rows with the data wanted
-            if row and re.match(r"\s*\d{" + str(date_length) + r"}\s*\b", row[0]):
+            if row and re.match(
+                r"\s*\d{" + str(date_length) + r"}\s*\b", row[0]
+            ):
                 if freq == "D":
                     row[0] = datetime.datetime.strptime(
                         row[0].strip(), "%Y%m%d"
@@ -70,7 +72,8 @@ def get_french_data(zip_filename, csv_filename, freq):
 
                 # Convert string to float
                 row[1:] = [
-                    np.float64(round(float(value) / 100, 8)) for value in row[1:]
+                    np.float64(round(float(value) / 100, 8))
+                    for value in row[1:]
                 ]
                 tuple_list.append(tuple(row))
 
@@ -114,7 +117,9 @@ def get_ecb_riskfree_rates(freq):
     else:
         errorhandler("Error: Invalid frequency given.")
 
-    request_string = f"https://sdw-wsrest.ecb.europa.eu/service/data/{identifier}"
+    request_string = (
+        f"https://sdw-wsrest.ecb.europa.eu/service/data/{identifier}"
+    )
     r = requests.get(request_string)
 
     if r.status_code != 200:
@@ -135,22 +140,30 @@ def get_ecb_riskfree_rates(freq):
         if freq == "D":
             for obs in root_list:
                 date = obs[0].attrib["value"]
-                value = np.float64(round(float(obs[1].attrib["value"]) / 100 / 360, 8))
+                value = np.float64(
+                    round(float(obs[1].attrib["value"]) / 100 / 360, 8)
+                )
                 tuple_list.append((date, value))
         elif freq == "M":
             for obs in root_list:
                 date = obs[0].attrib["value"]
-                value = np.float64(round(float(obs[1].attrib["value"]) / 100 / 12, 8))
+                value = np.float64(
+                    round(float(obs[1].attrib["value"]) / 100 / 12, 8)
+                )
                 tuple_list.append((date, value))
         elif freq == "A":
             for obs in root_list:
                 # Look for december rates
                 if re.match(r"\s*\d{4}-12\s*", obs[0].attrib["value"]):
                     date = obs[0].attrib["value"][:-3]
-                    value = np.float64(round(float(obs[1].attrib["value"]) / 100, 8))
+                    value = np.float64(
+                        round(float(obs[1].attrib["value"]) / 100, 8)
+                    )
                     tuple_list.append((date, value))
 
-    df = pd.DataFrame(tuple_list, columns=["interval", "RF"]).set_index("interval")
+    df = pd.DataFrame(tuple_list, columns=["interval", "RF"]).set_index(
+        "interval"
+    )
 
     if freq == "D":
         # Get date vector without missing dates
@@ -215,7 +228,9 @@ def get_boe_exchange_rates(freq):
                     "Bank of England API returned bad answer. Please try again."
                 )
             root = tree.getroot()
-            ns = {"x": "http://www.bankofengland.co.uk/boeapps/iadb/agg_series"}
+            ns = {
+                "x": "http://www.bankofengland.co.uk/boeapps/iadb/agg_series"
+            }
             root_list = root.findall("x:Cube/x:Cube[@TIME][@OBS_VALUE]", ns)
 
         tuple_list = []
@@ -223,17 +238,23 @@ def get_boe_exchange_rates(freq):
         if freq == "D":
             for cube in root_list:
                 date = cube.attrib["TIME"]
-                value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
+                value = np.float64(
+                    round(1 / float(cube.attrib["OBS_VALUE"]), 8)
+                )
                 tuple_list.append((date, value))
         elif freq == "M":
             for cube in root_list:
                 date = cube.attrib["TIME"][:-3]
-                value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
+                value = np.float64(
+                    round(1 / float(cube.attrib["OBS_VALUE"]), 8)
+                )
                 tuple_list.append((date, value))
         elif freq == "A":
             for cube in root_list:
                 date = cube.attrib["TIME"][:-6]
-                value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
+                value = np.float64(
+                    round(1 / float(cube.attrib["OBS_VALUE"]), 8)
+                )
                 tuple_list.append((date, value))
 
         if df.empty:
@@ -268,13 +289,18 @@ def build_model(model, df):
     update_list = []
     create_list = []
 
+    currency = df["currency"].iloc[0] if "currency" in df else ""
+    region = df["region"].iloc[0] if "region" in df else ""
+
     for index, row in df.iterrows():
         row_dict = row.to_dict()
         new_instance = model(interval=row.name, **row_dict)
         try:
             if "Factor" in model.__name__:
                 instance = model.objects.get(
-                    interval=row.name, currency=row["currency"], region=row["region"]
+                    interval=row.name,
+                    currency=row["currency"],
+                    region=row["region"],
                 )
             elif "RiskFreeRate" in model.__name__:
                 instance = model.objects.get(
@@ -298,13 +324,27 @@ def build_model(model, df):
         model.objects.bulk_create(create_list)
 
     # Print result
-    print(
-        f"{len(create_list)} created, {len(update_list)} updated, {len(df.index) - len(create_list) - len(update_list)} unchanged in {model.__name__}."
-    )
+    if currency and region:
+        print(
+            f"{len(create_list)} created, {len(update_list)} updated, {len(df.index) - len(create_list) - len(update_list)} unchanged in {model.__name__} for region {region} and currency {currency}."
+        )
+    elif currency:
+        print(
+            f"{len(create_list)} created, {len(update_list)} updated, {len(df.index) - len(create_list) - len(update_list)} unchanged in {model.__name__} for currency {currency}."
+        )
+    else:
+        print(
+            f"{len(create_list)} created, {len(update_list)} updated, {len(df.index) - len(create_list) - len(update_list)} unchanged in {model.__name__}."
+        )
 
 
-def build_import_dataframe(
-    df_factor_source, df_fxrates_r, df_rf_source, dict_rf_target, region, currency
+def convert_dataframe(
+    df_factor_source,
+    df_fxrates_r,
+    df_rf_source,
+    dict_rf_target,
+    region,
+    currency,
 ):
     try:
         df_rf_target = dict_rf_target[currency]
@@ -329,6 +369,15 @@ def build_import_dataframe(
     df_factor_target["MOM"] = round(
         1 / (1 + df_fxrates_r[currency]) * df_factor_source["MOM"], 4
     )
+
+    if "RMW" in df_factor_source and "CMA" in df_factor_source:
+        df_factor_target["RMW"] = round(
+            1 / (1 + df_fxrates_r[currency]) * df_factor_source["RMW"], 4
+        )
+        df_factor_target["CMA"] = round(
+            1 / (1 + df_fxrates_r[currency]) * df_factor_source["CMA"], 4
+        )
+
     df_factor_target = df_factor_target.loc[
         df_factor_target["MktRF"]
         .first_valid_index() : df_factor_target["MktRF"]
@@ -353,32 +402,3 @@ def build_base_dataframes(df_factors, df_mom, region, with_rf=False):
 
     df_factors.drop(["RF"], axis=1, inplace=True)
     return df_factors, None
-
-
-"""
-def main():
-
-    # TODO: Calculate exchange rate returns
-    exr_r_a = round((exr_a / exr_a.shift(periods=1) - 1).iloc[1:,:], 8)
-    exr_r_m = round((exr_m / exr_m.shift(periods=1) - 1).iloc[1:,:], 8)
-    exr_r_d = round((exr_d / exr_d.shift(periods=1) - 1).iloc[1:,:], 8)
-
-
-    ### French factor returns ###
-    ## Non-US ##
-    area_list = ['Developed', 'Developed_ex_US', 'Europe', 'Japan', 'Asia_Pacific_ex_Japan', 'North_America']
-    for area in area_list:
-        get_french_data('{c}_3_Factors_CSV'.format(c = area), '{c}_3_Factors.csv'.format(c = area), freq='A')
-        get_french_data('{c}_3_Factors_CSV'.format(c = area), '{c}_3_Factors.csv'.format(c = area), freq='M')
-        get_french_data('{c}_3_Factors_Daily_CSV'.format(c = area), '{c}_3_Factors_Daily.csv'.format(c = area), freq='D')
-        get_french_data('{c}_5_Factors_CSV'.format(c = area), '{c}_5_Factors.csv'.format(c = area), freq='A')
-        get_french_data('{c}_5_Factors_CSV'.format(c = area), '{c}_5_Factors.csv'.format(c = area), freq='M')
-        get_french_data('{c}_5_Factors_Daily_CSV'.format(c = area), '{c}_5_Factors_Daily.csv'.format(c = area), freq='D')
-        get_french_data('{c}_MOM_Factor_CSV'.format(c = area), '{c}_MOM_Factor.csv'.format(c = area), freq='A')
-        get_french_data('{c}_MOM_Factor_CSV'.format(c = area), '{c}_MOM_Factor.csv'.format(c = area), freq='M')
-        get_french_data('{c}_MOM_Factor_Daily_CSV'.format(c = area), '{c}_MOM_Factor_Daily.csv'.format(c = area), freq='D')
-
-    ## USA ##
-
-
-"""
