@@ -1,6 +1,6 @@
 <div style="margin-bottom: 20px;" align="center">
     <img
-        width="200%"
+        width="100%"
         src="https://raw.githubusercontent.com/perfolio/factor-returns/master/public/perfolio_logo.png">
     </img>
 </div>
