@@ -29,7 +29,7 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 class RiskFreeRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DailyRiskFreeRate
-        fields = ["interval", "RF"]
+        fields = ("interval", "RF")
 
 
 class ExchangeRateUSDPerXSerializer(DynamicFieldsModelSerializer):
@@ -38,7 +38,7 @@ class ExchangeRateUSDPerXSerializer(DynamicFieldsModelSerializer):
         fields = "__all__"
 
 
-class DailyThreeFactorSerializer(serializers.ModelSerializer):
+class ThreeFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = models.DailyThreeFourFactor
         fields = (
@@ -49,29 +49,7 @@ class DailyThreeFactorSerializer(serializers.ModelSerializer):
         )
 
 
-class MonthlyThreeFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyThreeFourFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-        )
-
-
-class AnnuallyThreeFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyThreeFourFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-        )
-
-
-class DailyFourFactorSerializer(serializers.ModelSerializer):
+class FourFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = models.DailyThreeFourFactor
         fields = (
@@ -83,31 +61,7 @@ class DailyFourFactorSerializer(serializers.ModelSerializer):
         )
 
 
-class MonthlyFourFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyThreeFourFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "MOM",
-        )
-
-
-class AnnuallyFourFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyThreeFourFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "MOM",
-        )
-
-
-class DailyFiveFactorSerializer(serializers.ModelSerializer):
+class FiveFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = models.DailyFiveSixFactor
         fields = (
@@ -120,33 +74,7 @@ class DailyFiveFactorSerializer(serializers.ModelSerializer):
         )
 
 
-class MonthlyFiveFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
-        )
-
-
-class AnnuallyFiveFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
-        )
-
-
-class DailySixFactorSerializer(serializers.ModelSerializer):
+class SixFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = models.DailyFiveSixFactor
         fields = (
@@ -156,195 +84,5 @@ class DailySixFactorSerializer(serializers.ModelSerializer):
             "HML",
             "RMW",
             "CMA",
-            "MOM",
-        )
-
-
-class MonthlySixFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
-            "MOM",
-        )
-
-
-class AnnuallySixFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
-            "MOM",
-        )
-
-
-class DailyMktRFFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-        )
-
-
-class MonthlyMktRFFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-        )
-
-
-class AnnuallyMktRFFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "MktRF",
-        )
-
-
-class DailySMBFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "SMB",
-        )
-
-
-class MonthlySMBFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "SMB",
-        )
-
-
-class AnnuallySMBFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "SMB",
-        )
-
-
-class DailyHMLFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "HML",
-        )
-
-
-class MonthlyHMLFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "HML",
-        )
-
-
-class AnnuallyHMLFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "HML",
-        )
-
-
-class DailyRMWFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "RMW",
-        )
-
-
-class MonthlyRMWFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "RMW",
-        )
-
-
-class AnnuallyRMWFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "RMW",
-        )
-
-
-class DailyCMAFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "CMA",
-        )
-
-
-class MonthlyCMAFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "CMA",
-        )
-
-
-class AnnuallyCMAFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
-            "CMA",
-        )
-
-
-class DailyMOMFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DailyFiveSixFactor
-        fields = (
-            "interval",
-            "MOM",
-        )
-
-
-class MonthlyMOMFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.MonthlyFiveSixFactor
-        fields = (
-            "interval",
-            "MOM",
-        )
-
-
-class AnnuallyMOMFactorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AnnuallyFiveSixFactor
-        fields = (
-            "interval",
             "MOM",
         )

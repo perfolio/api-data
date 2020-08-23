@@ -1,132 +1,14 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from . import models, serializers
 
-
-def errorhandler(message):
-    raise ValidationError({"Error": message})
+### Config ###
 
 
-def fxrates_validate_and_filter(currency, from_, to_, dropna_, model):
-    if from_ is None and to_ is None:
-        objects = model.objects.all()
-    elif not from_:
-        errorhandler("Please select a valid 'from' parameter.")
-    elif not to_:
-        errorhandler("Please select a valid 'to' parameter.")
-    else:
-        objects = model.objects.filter(interval__range=[from_, to_])
-
-    objects = objects.values("interval", currency)
-
-    if dropna_ and dropna_.lower() == "false":
-        return objects
-
-    return objects.exclude(**{currency + "__isnull": True})
-
-
-def rf_validate_and_filter(currency, from_, to_, dropna_, model):
-    if from_ is None and to_ is None:
-        objects = model.objects.all()
-    elif not from_:
-        errorhandler("Please select a valid 'from' parameter.")
-    elif not to_:
-        errorhandler("Please select a valid 'to' parameter.")
-    else:
-        objects = model.objects.filter(interval__range=[from_, to_])
-
-    objects = objects.filter(currency__exact=currency)
-
-    if dropna_ and dropna_.lower() == "false":
-        return objects
-
-    return objects.exclude(RF__isnull=True)
-
-
-### Risk Free Rate ###
-
+intervals = ["daily", "monthly", "annually"]
 currencies_rf = ["USD", "EUR"]
-
-
-class DailyRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyRiskFreeRate class"""
-
-    def get_queryset(self):
-        currency = self.kwargs["currency"]
-        if currency not in currencies_rf:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
-
-        return rf_validate_and_filter(
-            currency, from_, to_, dropna_, models.DailyRiskFreeRate
-        )
-
-    # Fallback queryset and serializer class
-    queryset = models.DailyRiskFreeRate.objects.all()
-    serializer_class = serializers.RiskFreeRateSerializer
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class MonthlyRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyRiskFreeRate class"""
-
-    def get_queryset(self):
-        currency = self.kwargs["currency"]
-        if currency not in currencies_rf:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
-
-        return rf_validate_and_filter(
-            currency, from_, to_, dropna_, models.MonthlyRiskFreeRate
-        )
-
-    # Fallback queryset and serializer class
-    queryset = models.MonthlyRiskFreeRate.objects.all()
-    serializer_class = serializers.RiskFreeRateSerializer
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallyRiskFreeRateViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyRiskFreeRate class"""
-
-    def get_queryset(self):
-        currency = self.kwargs["currency"]
-        if currency not in currencies_rf:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
-
-        return rf_validate_and_filter(
-            currency, from_, to_, dropna_, models.AnnuallyRiskFreeRate
-        )
-
-    # Fallback queryset and serializer class
-    queryset = models.AnnuallyRiskFreeRate.objects.all()
-    serializer_class = serializers.RiskFreeRateSerializer
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-### Exchange Rates ###
-
 currencies_fxrates = [
     "EUR",
     "JPY",
@@ -147,13 +29,146 @@ currencies_fxrates = [
     "KRW",
     "TRY",
 ]
+factors = ["MktRF", "SMB", "HML", "MOM", "RMW", "CMA"]
+regions = [
+    "USA",
+    "Developed",
+    "Developed_ex_US",
+    "Europe",
+    "Japan",
+    "Asia_Pacific_ex_Japan",
+    "North_America",
+]
+
+### Helpers ###
 
 
-class DailyExchangeRateUSDPerXViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for the DailyExchangeRateUSDPerX class"""
+def errorhandler(message):
+    raise ValidationError({"Error": message})
+
+
+def factors_validate_and_filter(obj, factor_model):
+
+    factor = obj.kwargs["factor"]
+    region = obj.kwargs["region"]
+    currency = obj.kwargs["currency"].upper()
+    interval = obj.kwargs["interval"].lower()
+
+    if interval == "daily" and factor_model in [3, 4]:
+        model = models.DailyThreeFourFactor
+    elif interval == "daily" and factor_model in [5, 6]:
+        model = models.DailyFiveSixFactor
+    elif interval == "monthly" and factor_model in [3, 4]:
+        model = models.MonthlyThreeFourFactor
+    elif interval == "monthly" and factor_model in [5, 6]:
+        model = models.MonthlyFiveSixFactor
+    elif interval == "annually" and factor_model in [3, 4]:
+        model = models.AnnuallyThreeFourFactor
+    elif interval == "annually" and factor_model in [5, 6]:
+        model = models.AnnuallyFiveSixFactor
+
+    from_ = obj.request.GET.get("from")
+    to_ = obj.request.GET.get("to")
+    dropna_ = obj.request.GET.get("dropna")
+
+    if factor not in factors[:factor_model] and factor != "all":
+        errorhandler("Invalid factor. See docs for factors supported.")
+    if region not in regions:
+        errorhandler("Invalid region. See docs for regions supported")
+    if currency not in currencies_fxrates:
+        errorhandler(
+            "Currency not supported (yet). See docs for currencies supported."
+        )
+    if interval.lower() not in intervals:
+        errorhandler("Invalid interval. Choose daily, monthly or annually.")
+
+    if from_ is None and to_ is None:
+        objects = model.objects.all()
+    elif not from_:
+        errorhandler("Please select a valid 'from' parameter.")
+    elif not to_:
+        errorhandler("Please select a valid 'to' parameter.")
+    else:
+        objects = model.objects.filter(interval__range=[from_, to_])
+
+    objects = objects.filter(currency__exact=currency, region__exact=region)
+
+    if factor != "all":
+        objects = objects.values("interval", factor)
+
+    if dropna_ and dropna_.lower() == "false":
+        return objects
+
+    if factor != "all":
+        return objects.exclude(**{factor + "__isnull": True})
+
+    filter_fields = {}
+
+    for f in factors[:factor_model]:
+        filter_fields[f + "__isnull"] = True
+    print(filter_fields)
+    return objects.exclude(**filter_fields)
+
+
+### Views ###
+
+### Risk Free Rate ###
+
+
+class RiskFreeRateView(generics.ListAPIView):
+    """View for the RiskFreeRate class"""
+
+    serializer_class = serializers.RiskFreeRateSerializer
+
+    def get_queryset(self):
+        currency = self.kwargs["currency"]
+        interval = self.kwargs["interval"].lower()
+
+        if currency not in currencies_rf:
+            errorhandler(
+                "Currency not supported (yet). See docs for currencies supported."
+            )
+        if interval.lower() not in intervals:
+            errorhandler(
+                "Invalid interval. Choose daily, monthly or annually."
+            )
+
+        if interval == "daily":
+            model = models.DailyRiskFreeRate
+        elif interval == "monthly":
+            model = models.MonthlyRiskFreeRate
+        elif interval == "annually":
+            model = models.AnnuallyRiskFreeRate
+
+        from_ = self.request.GET.get("from")
+        to_ = self.request.GET.get("to")
+        dropna_ = self.request.GET.get("dropna")
+
+        if from_ is None and to_ is None:
+            objects = model.objects.all()
+        elif not from_:
+            errorhandler("Please select a valid 'from' parameter.")
+        elif not to_:
+            errorhandler("Please select a valid 'to' parameter.")
+        else:
+            objects = model.objects.filter(interval__range=[from_, to_])
+
+        objects = objects.filter(currency__exact=currency)
+
+        if dropna_ and dropna_.lower() == "false":
+            return objects
+
+        return objects.exclude(RF__isnull=True)
+
+
+### Exchange Rates ###
+
+
+class ExchangeRateUSDPerXView(generics.ListAPIView):
+    """View for the DailyExchangeRateUSDPerX class"""
 
     # Overwrite list method to make use of dynamic serializer
-    def list(self, request, currency):
+    def list(self, request, currency, interval):
         queryset = self.get_queryset()
         serializer = serializers.ExchangeRateUSDPerXSerializer(
             queryset, many=True, fields=["interval", currency]
@@ -162,210 +177,119 @@ class DailyExchangeRateUSDPerXViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         currency = self.kwargs["currency"]
+        interval = self.kwargs["interval"].lower()
+
         if currency not in currencies_fxrates:
             errorhandler(
                 "Currency not supported (yet). See docs for currencies supported."
             )
+        if interval.lower() not in intervals:
+            errorhandler(
+                "Invalid interval. Choose daily, monthly or annually."
+            )
+
+        if interval == "daily":
+            model = models.DailyExchangeRateUSDPerX
+        elif interval == "monthly":
+            model = models.MonthlyExchangeRateUSDPerX
+        elif interval == "annually":
+            model = models.AnnuallyExchangeRateUSDPerX
 
         from_ = self.request.GET.get("from")
         to_ = self.request.GET.get("to")
         dropna_ = self.request.GET.get("dropna")
 
-        return validate_and_filter(
-            currency, from_, to_, dropna_, models.DailyExchangeRateUSDPerX
-        )
+        if from_ is None and to_ is None:
+            objects = model.objects.all()
+        elif not from_:
+            errorhandler("Please select a valid 'from' parameter.")
+        elif not to_:
+            errorhandler("Please select a valid 'to' parameter.")
+        else:
+            objects = model.objects.filter(interval__range=[from_, to_])
 
-    # Fallback queryset and serializer class
-    queryset = models.DailyExchangeRateUSDPerX.objects.all()
-    serializer_class = serializers.ExchangeRateUSDPerXSerializer
+        objects = objects.values("interval", currency)
 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        if dropna_ and dropna_.lower() == "false":
+            return objects
+
+        return objects.exclude(**{currency + "__isnull": True})
 
 
-class MonthlyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyExchangeRateUSDPerX class"""
+### Factor returns ###
 
-    def list(self, request, currency):
+
+class ThreeFactorView(generics.ListAPIView):
+    """View for the ThreeFactor class"""
+
+    def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
-        serializer = serializers.ExchangeRateUSDPerXSerializer(
-            queryset, many=True, fields=["interval", currency]
+        fields = {}
+
+        if factor.lower() != "all":
+            fields = {"fields": ["interval", factor]}
+
+        serializer = serializers.ThreeFactorSerializer(
+            queryset, many=True, **fields
         )
         return Response(serializer.data)
 
     def get_queryset(self):
-        currency = self.kwargs["currency"]
-        if currency not in currencies_fxrates:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
-
-        return validate_and_filter(
-            currency, from_, to_, dropna_, models.MonthlyExchangeRateUSDPerX
-        )
-
-    # Fallback queryset and serializer class
-    queryset = models.MonthlyExchangeRateUSDPerX.objects.all()
-    serializer_class = serializers.ExchangeRateUSDPerXSerializer
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        return factors_validate_and_filter(self, 3)
 
 
-class AnnuallyExchangeRateUSDPerXViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyExchangeRateUSDPerX class"""
+class FourFactorView(generics.ListAPIView):
+    """View for the DailyFourFactor class"""
 
-    def list(self, request, currency):
+    def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
-        serializer = serializers.ExchangeRateUSDPerXSerializer(
-            queryset, many=True, fields=["interval", currency]
+        fields = {}
+
+        if factor.lower() != "all":
+            fields = {"fields": ["interval", factor]}
+
+        serializer = serializers.FourFactorSerializer(
+            queryset, many=True, **fields
         )
         return Response(serializer.data)
 
     def get_queryset(self):
-        currency = self.kwargs["currency"]
-        if currency not in currencies_fxrates:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
+        return factors_validate_and_filter(self, 4)
 
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
 
-        return validate_and_filter(
-            currency, from_, to_, dropna_, models.AnnuallyExchangeRateUSDPerX
+class FiveFactorView(generics.ListAPIView):
+    """View for the DailyFiveFactor class"""
+
+    def list(self, request, factor, region, currency, interval):
+        queryset = self.get_queryset()
+        fields = {}
+
+        if factor.lower() != "all":
+            fields = {"fields": ["interval", factor]}
+
+        serializer = serializers.FiveFactorSerializer(
+            queryset, many=True, **fields
         )
+        return Response(serializer.data)
 
-    # Fallback queryset and serializer class
-    queryset = models.AnnuallyExchangeRateUSDPerX.objects.all()
-    serializer_class = serializers.ExchangeRateUSDPerXSerializer
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def get_queryset(self):
+        return factors_validate_and_filter(self, 5)
 
 
-class DailyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyThreeFactor class"""
+class SixFactorView(generics.ListAPIView):
+    """View for the DailySixFactor class"""
 
-    queryset = models.DailyThreeFourFactor.objects.all()
-    serializer_class = serializers.DailyThreeFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def list(self, request, factor, region, currency, interval):
+        queryset = self.get_queryset()
+        fields = {}
 
+        if factor.lower() != "all":
+            fields = {"fields": ["interval", factor]}
 
-class MonthlyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyThreeFactor class"""
+        serializer = serializers.SixFactorSerializer(
+            queryset, many=True, **fields
+        )
+        return Response(serializer.data)
 
-    queryset = models.MonthlyThreeFourFactor.objects.all()
-    serializer_class = serializers.MonthlyThreeFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallyThreeFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyThreeFactor class"""
-
-    queryset = models.AnnuallyThreeFourFactor.objects.all()
-    serializer_class = serializers.AnnuallyThreeFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class DailyFourFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyFourFactor class"""
-
-    queryset = models.DailyThreeFourFactor.objects.all()
-    serializer_class = serializers.DailyFourFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class MonthlyFourFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyFourFactor class"""
-
-    queryset = models.MonthlyThreeFourFactor.objects.all()
-    serializer_class = serializers.MonthlyFourFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallyFourFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyFourFactor class"""
-
-    queryset = models.AnnuallyThreeFourFactor.objects.all()
-    serializer_class = serializers.AnnuallyFourFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class DailyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyFiveFactor class"""
-
-    queryset = models.DailyFiveSixFactor.objects.all()
-    serializer_class = serializers.DailyFiveFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class MonthlyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyFiveFactor class"""
-
-    queryset = models.MonthlyFiveSixFactor.objects.all()
-    serializer_class = serializers.MonthlyFiveFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallyFiveFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyFiveFactor class"""
-
-    queryset = models.AnnuallyFiveSixFactor.objects.all()
-    serializer_class = serializers.AnnuallyFiveFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class DailySixFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailySixFactor class"""
-
-    queryset = models.DailyFiveSixFactor.objects.all()
-    serializer_class = serializers.DailySixFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class MonthlySixFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlySixFactor class"""
-
-    queryset = models.MonthlyFiveSixFactor.objects.all()
-    serializer_class = serializers.MonthlySixFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallySixFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallySixFactor class"""
-
-    queryset = models.AnnuallyFiveSixFactor.objects.all()
-    serializer_class = serializers.AnnuallySixFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-### Single factors ###
-
-factors = ["MktRF", "SMB", "HML", "RMW", "CMA", "MOM"]
-
-
-class DailyFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the DailyFactor class"""
-
-    queryset = models.DailyFiveSixFactor.objects.all()
-
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class MonthlyFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the MonthlyFactor class"""
-
-    queryset = models.MonthlyFiveSixFactor.objects.all()
-    serializer_class = serializers.MonthlyMktRFFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-
-class AnnuallyFactorViewSet(viewsets.ModelViewSet):
-    """ViewSet for the AnnuallyFactor class"""
-
-    queryset = models.AnnuallyFiveSixFactor.objects.all()
-    serializer_class = serializers.AnnuallyMktRFFactorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def get_queryset(self):
+        return factors_validate_and_filter(self, 6)
