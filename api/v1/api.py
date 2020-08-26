@@ -5,7 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 
 from . import models, serializers
 
-### Config ###
+# Config #
 
 
 intervals = ["daily", "monthly", "annually"]
@@ -41,7 +41,7 @@ regions = [
     "North_America",
 ]
 
-### Helpers ###
+# Helpers #
 
 
 def errorhandler(message):
@@ -115,7 +115,7 @@ def factors_validate_and_filter(obj, factor_model):
 
     for f in factors[:factor_model]:
         filter_fields[f + "__isnull"] = True
-    print(filter_fields)
+
     return objects.exclude(**filter_fields)
 
 
@@ -139,9 +139,9 @@ class ReadOnlyAPI(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-### Views ###
+# Views #
 
-### Risk Free Rate ###
+# Risk Free Rate #
 
 
 class RiskFreeRateView(generics.ListAPIView):
@@ -195,7 +195,7 @@ class RiskFreeRateView(generics.ListAPIView):
         throttle_handler(wait)
 
 
-### Exchange Rates ###
+# Exchange Rates #
 
 
 class ExchangeRateUSDPerXView(generics.ListAPIView):
@@ -256,7 +256,7 @@ class ExchangeRateUSDPerXView(generics.ListAPIView):
         throttle_handler(wait)
 
 
-### Factor returns ###
+# Factor returns #
 
 
 class ThreeFactorView(generics.ListAPIView):

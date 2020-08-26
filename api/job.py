@@ -12,7 +12,7 @@ from french_config import regions
 
 pd.options.mode.chained_assignment = None
 
-### ECB Risk Free Rates ###
+# ECB Risk Free Rates #
 
 df_rf_eur_d = get_ecb_riskfree_rates(freq="D")
 df_rf_eur_d["currency"] = "EUR"
@@ -28,7 +28,7 @@ dict_rf_d = {"EUR": df_rf_eur_d}
 dict_rf_m = {"EUR": df_rf_eur_m}
 dict_rf_a = {"EUR": df_rf_eur_a}
 
-### BOE Exchange Rates USD per X ###
+# BOE Exchange Rates USD per X #
 
 df_fxrates_d = get_boe_exchange_rates(freq="D")
 build_model(model=models.DailyExchangeRateUSDPerX, df=df_fxrates_d)
@@ -44,7 +44,7 @@ df_fxrates_r_m.drop(df_fxrates_r_m.index[:1], inplace=True)
 df_fxrates_r_a = round((df_fxrates_a / df_fxrates_a.shift(periods=1) - 1), 8)
 df_fxrates_r_a.drop(df_fxrates_r_a.index[:1], inplace=True)
 
-### French Factor Returns ###
+# French Factor Returns #
 
 # USA #
 
