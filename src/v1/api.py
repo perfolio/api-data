@@ -5,31 +5,11 @@ from rest_framework.authentication import TokenAuthentication
 
 from . import models, serializers
 
+from get_data.currencies_config import currencies_fxrates, currencies_rf
+
 # Config #
 
-
 intervals = ["daily", "monthly", "annually"]
-currencies_rf = ["USD", "EUR"]
-currencies_fxrates = [
-    "EUR",
-    "JPY",
-    "GBP",
-    "CHF",
-    "RUB",
-    "AUD",
-    "BRL",
-    "CAD",
-    "CNY",
-    "INR",
-    "DKK",
-    "NZD",
-    "NOK",
-    "SEK",
-    "PLN",
-    "ILS",
-    "KRW",
-    "TRY",
-]
 factors = ["MktRF", "SMB", "HML", "MOM", "RMW", "CMA"]
 regions = [
     "USA",
@@ -39,6 +19,7 @@ regions = [
     "Japan",
     "Asia_Pacific_ex_Japan",
     "North_America",
+    "Emerging",
 ]
 
 # Helpers #
