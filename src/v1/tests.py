@@ -213,9 +213,7 @@ class DailyECBRiskFreeRateViewTest(unittest.TestCase):
 
     def test_detail_dailyecbriskfreerate(self):
         dailyecbriskfreerate = create_dailyecbriskfreerate()
-        url = reverse(
-            "v1_dailyecbriskfreerate_detail", args=[dailyecbriskfreerate.pk]
-        )
+        url = reverse("v1_dailyecbriskfreerate_detail", args=[dailyecbriskfreerate.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -225,9 +223,7 @@ class DailyECBRiskFreeRateViewTest(unittest.TestCase):
             "interval": "interval",
             "RF": "RF",
         }
-        url = reverse(
-            "v1_dailyecbriskfreerate_update", args=[dailyecbriskfreerate.pk]
-        )
+        url = reverse("v1_dailyecbriskfreerate_update", args=[dailyecbriskfreerate.pk])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
@@ -257,8 +253,7 @@ class MonthlyECBRiskFreeRateViewTest(unittest.TestCase):
     def test_detail_monthlyecbriskfreerate(self):
         monthlyecbriskfreerate = create_monthlyecbriskfreerate()
         url = reverse(
-            "v1_monthlyecbriskfreerate_detail",
-            args=[monthlyecbriskfreerate.pk],
+            "v1_monthlyecbriskfreerate_detail", args=[monthlyecbriskfreerate.pk],
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -270,8 +265,7 @@ class MonthlyECBRiskFreeRateViewTest(unittest.TestCase):
             "RF": "RF",
         }
         url = reverse(
-            "v1_monthlyecbriskfreerate_update",
-            args=[monthlyecbriskfreerate.pk],
+            "v1_monthlyecbriskfreerate_update", args=[monthlyecbriskfreerate.pk],
         )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
@@ -302,8 +296,7 @@ class AnnuallyECBRiskFreeRateViewTest(unittest.TestCase):
     def test_detail_annuallyecbriskfreerate(self):
         annuallyecbriskfreerate = create_annuallyecbriskfreerate()
         url = reverse(
-            "v1_annuallyecbriskfreerate_detail",
-            args=[annuallyecbriskfreerate.pk],
+            "v1_annuallyecbriskfreerate_detail", args=[annuallyecbriskfreerate.pk],
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -315,8 +308,7 @@ class AnnuallyECBRiskFreeRateViewTest(unittest.TestCase):
             "RF": "RF",
         }
         url = reverse(
-            "v1_annuallyecbriskfreerate_update",
-            args=[annuallyecbriskfreerate.pk],
+            "v1_annuallyecbriskfreerate_update", args=[annuallyecbriskfreerate.pk],
         )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
@@ -356,8 +348,7 @@ class DailyExchangeRateUSDPerXViewTest(unittest.TestCase):
     def test_detail_dailyexchangerateusdperx(self):
         dailyexchangerateusdperx = create_dailyexchangerateusdperx()
         url = reverse(
-            "v1_dailyexchangerateusdperx_detail",
-            args=[dailyexchangerateusdperx.pk],
+            "v1_dailyexchangerateusdperx_detail", args=[dailyexchangerateusdperx.pk],
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -378,8 +369,7 @@ class DailyExchangeRateUSDPerXViewTest(unittest.TestCase):
             "INR": "INR",
         }
         url = reverse(
-            "v1_dailyexchangerateusdperx_update",
-            args=[dailyexchangerateusdperx.pk],
+            "v1_dailyexchangerateusdperx_update", args=[dailyexchangerateusdperx.pk],
         )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
@@ -419,8 +409,7 @@ class MonthlyExchangeRateUSDPerXViewTest(unittest.TestCase):
     def test_detail_monthlyexchangerateusdperx(self):
         monthlyexchangerateusdperx = create_monthlyexchangerateusdperx()
         url = reverse(
-            "v1_monthlyexchangerateusdperx_detail",
-            args=[monthlyexchangerateusdperx.pk],
+            "v1_monthlyexchangerateusdperx_detail", args=[monthlyexchangerateusdperx.pk],
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -441,8 +430,7 @@ class MonthlyExchangeRateUSDPerXViewTest(unittest.TestCase):
             "INR": "INR",
         }
         url = reverse(
-            "v1_monthlyexchangerateusdperx_update",
-            args=[monthlyexchangerateusdperx.pk],
+            "v1_monthlyexchangerateusdperx_update", args=[monthlyexchangerateusdperx.pk],
         )
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
@@ -583,9 +571,7 @@ class MonthlyThreeFactorViewTest(unittest.TestCase):
 
     def test_detail_monthlythreefactor(self):
         monthlythreefactor = create_monthlythreefactor()
-        url = reverse(
-            "v1_monthlythreefactor_detail", args=[monthlythreefactor.pk]
-        )
+        url = reverse("v1_monthlythreefactor_detail", args=[monthlythreefactor.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -598,9 +584,7 @@ class MonthlyThreeFactorViewTest(unittest.TestCase):
             "HML": "HML",
             "RF": "RF",
         }
-        url = reverse(
-            "v1_monthlythreefactor_update", args=[monthlythreefactor.pk]
-        )
+        url = reverse("v1_monthlythreefactor_update", args=[monthlythreefactor.pk])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
@@ -632,9 +616,7 @@ class YearlyThreeFactorViewTest(unittest.TestCase):
 
     def test_detail_yearlythreefactor(self):
         yearlythreefactor = create_yearlythreefactor()
-        url = reverse(
-            "v1_yearlythreefactor_detail", args=[yearlythreefactor.pk]
-        )
+        url = reverse("v1_yearlythreefactor_detail", args=[yearlythreefactor.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -647,9 +629,7 @@ class YearlyThreeFactorViewTest(unittest.TestCase):
             "HML": "HML",
             "RF": "RF",
         }
-        url = reverse(
-            "v1_yearlythreefactor_update", args=[yearlythreefactor.pk]
-        )
+        url = reverse("v1_yearlythreefactor_update", args=[yearlythreefactor.pk])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
@@ -732,9 +712,7 @@ class MonthlyFiveFactorViewTest(unittest.TestCase):
 
     def test_detail_monthlyfivefactor(self):
         monthlyfivefactor = create_monthlyfivefactor()
-        url = reverse(
-            "v1_monthlyfivefactor_detail", args=[monthlyfivefactor.pk]
-        )
+        url = reverse("v1_monthlyfivefactor_detail", args=[monthlyfivefactor.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -749,9 +727,7 @@ class MonthlyFiveFactorViewTest(unittest.TestCase):
             "RMW": "RMW",
             "CMA": "CMA",
         }
-        url = reverse(
-            "v1_monthlyfivefactor_update", args=[monthlyfivefactor.pk]
-        )
+        url = reverse("v1_monthlyfivefactor_update", args=[monthlyfivefactor.pk])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
 
@@ -785,9 +761,7 @@ class AnnuallyFiveFactorViewTest(unittest.TestCase):
 
     def test_detail_annuallyfivefactor(self):
         annuallyfivefactor = create_annuallyfivefactor()
-        url = reverse(
-            "v1_annuallyfivefactor_detail", args=[annuallyfivefactor.pk]
-        )
+        url = reverse("v1_annuallyfivefactor_detail", args=[annuallyfivefactor.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -802,8 +776,6 @@ class AnnuallyFiveFactorViewTest(unittest.TestCase):
             "RMW": "RMW",
             "CMA": "CMA",
         }
-        url = reverse(
-            "v1_annuallyfivefactor_update", args=[annuallyfivefactor.pk]
-        )
+        url = reverse("v1_annuallyfivefactor_update", args=[annuallyfivefactor.pk])
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)

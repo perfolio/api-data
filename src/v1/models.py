@@ -31,11 +31,7 @@ class DailyRiskFreeRate(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -56,19 +52,14 @@ class MonthlyRiskFreeRate(models.Model):
             # don't attempt to compare against other classes
             return NotImplemented
 
-        return (
-            self.interval == other.interval
-            and MonthlyRiskFreeRate.__compare(self.RF, other.RF)
+        return self.interval == other.interval and MonthlyRiskFreeRate.__compare(
+            self.RF, other.RF
         )
 
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -89,19 +80,14 @@ class AnnuallyRiskFreeRate(models.Model):
             # don't attempt to compare against other classes
             return NotImplemented
 
-        return (
-            self.interval == other.interval
-            and AnnuallyRiskFreeRate.__compare(self.RF, other.RF)
+        return self.interval == other.interval and AnnuallyRiskFreeRate.__compare(
+            self.RF, other.RF
         )
 
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -163,11 +149,7 @@ class DailyExchangeRateUSDPerX(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -229,11 +211,7 @@ class MonthlyExchangeRateUSDPerX(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -295,11 +273,7 @@ class AnnuallyExchangeRateUSDPerX(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -342,11 +316,7 @@ class DailyThreeFourFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -389,11 +359,7 @@ class MonthlyThreeFourFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -436,11 +402,7 @@ class AnnuallyThreeFourFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -487,11 +449,7 @@ class DailyFiveSixFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -538,11 +496,7 @@ class MonthlyFiveSixFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
 
@@ -589,9 +543,5 @@ class AnnuallyFiveSixFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x),
-            np.float64(y),
-            rtol=1e-05,
-            atol=1e-08,
-            equal_nan=True,
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )

@@ -141,4 +141,19 @@ regions = [
             },
         ],
     },
+    {
+        "name": "Emerging",
+        "freq": [
+            {
+                "interval": "M",
+                "5factors": "Emerging_5_Factors_CSV",
+                "mom": "Emerging_MOM_Factor_CSV",
+            },
+            {
+                "interval": "A",
+                "5factors": "Emerging_5_Factors_CSV",
+                "mom": "Emerging_MOM_Factor_CSV",
+            },
+        ],
+    },
 ]

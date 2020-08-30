@@ -85,9 +85,7 @@ def factors_validate_and_filter(obj, factor_model):
     if region not in regions:
         errorhandler("Invalid region. See docs for regions supported")
     if currency not in currencies_fxrates:
-        errorhandler(
-            "Currency not supported (yet). See docs for currencies supported."
-        )
+        errorhandler("Currency not supported (yet). See docs for currencies supported.")
     if interval.lower() not in intervals:
         errorhandler("Invalid interval. Choose daily, monthly or annually.")
 
@@ -160,9 +158,7 @@ class RiskFreeRateView(generics.ListAPIView):
                 "Currency not supported (yet). See docs for currencies supported."
             )
         if interval.lower() not in intervals:
-            errorhandler(
-                "Invalid interval. Choose daily, monthly or annually."
-            )
+            errorhandler("Invalid interval. Choose daily, monthly or annually.")
 
         if interval == "daily":
             model = models.DailyRiskFreeRate
@@ -221,9 +217,7 @@ class ExchangeRateUSDPerXView(generics.ListAPIView):
                 "Currency not supported (yet). See docs for currencies supported."
             )
         if interval.lower() not in intervals:
-            errorhandler(
-                "Invalid interval. Choose daily, monthly or annually."
-            )
+            errorhandler("Invalid interval. Choose daily, monthly or annually.")
 
         if interval == "daily":
             model = models.DailyExchangeRateUSDPerX
@@ -272,9 +266,7 @@ class ThreeFactorView(generics.ListAPIView):
         if factor.lower() != "all":
             fields = {"fields": ["interval", factor]}
 
-        serializer = serializers.ThreeFactorSerializer(
-            queryset, many=True, **fields
-        )
+        serializer = serializers.ThreeFactorSerializer(queryset, many=True, **fields)
         return Response(serializer.data)
 
     def get_queryset(self):
@@ -297,9 +289,7 @@ class FourFactorView(generics.ListAPIView):
         if factor.lower() != "all":
             fields = {"fields": ["interval", factor]}
 
-        serializer = serializers.FourFactorSerializer(
-            queryset, many=True, **fields
-        )
+        serializer = serializers.FourFactorSerializer(queryset, many=True, **fields)
         return Response(serializer.data)
 
     def get_queryset(self):
@@ -322,9 +312,7 @@ class FiveFactorView(generics.ListAPIView):
         if factor.lower() != "all":
             fields = {"fields": ["interval", factor]}
 
-        serializer = serializers.FiveFactorSerializer(
-            queryset, many=True, **fields
-        )
+        serializer = serializers.FiveFactorSerializer(queryset, many=True, **fields)
         return Response(serializer.data)
 
     def get_queryset(self):
@@ -347,9 +335,7 @@ class SixFactorView(generics.ListAPIView):
         if factor.lower() != "all":
             fields = {"fields": ["interval", factor]}
 
-        serializer = serializers.SixFactorSerializer(
-            queryset, many=True, **fields
-        )
+        serializer = serializers.SixFactorSerializer(queryset, many=True, **fields)
         return Response(serializer.data)
 
     def get_queryset(self):
