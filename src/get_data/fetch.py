@@ -10,15 +10,13 @@ import pandas as pd
 from typing import List, Tuple
 
 
-class Fetchers:
+class Fetcher:
     """
     A class with a collection of static methods to fetch data from specific endpoints.
     """
 
     @staticmethod
-    def get_french_factors(
-        zip_filename: str, csv_filename: str, freq: str
-    ) -> pd.DataFrame:
+    def french_factors(zip_filename: str, csv_filename: str, freq: str) -> pd.DataFrame:
         """
         Get factor data from Kenneth French's data library and clean it up.
 
@@ -98,7 +96,7 @@ class Fetchers:
         return df
 
     @staticmethod
-    def get_ecb_riskfreeRates(freq: str) -> pd.DataFrame:
+    def ecb_riskfreerates(freq: str) -> pd.DataFrame:
         """
         Get riskfree rates from ECB (Daily rates: EONIA, monthly or annually rates: EURIBOR 1M)
 
@@ -173,7 +171,7 @@ class Fetchers:
         return df
 
     @staticmethod
-    def get_boe_fxRates(freq: str) -> pd.DataFrame:
+    def boe_fxrates(freq: str) -> pd.DataFrame:
         """
         Get 16.00 London time exchange rates against USD from Bank of England API.
 
