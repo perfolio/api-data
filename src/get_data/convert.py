@@ -38,7 +38,7 @@ class FactorConverter:
         self.df_rf_usd = df_rf_usd
         self.dict_rf = dict_rf
 
-    def convert_mktrf(self, s_factor_source: pd.Series, currency: str) -> pd.Series:
+    def mktrf(self, s_factor_source: pd.Series, currency: str) -> pd.Series:
         """
         Convert market factor returns series following Glueck et al. (2020) to different currency.
         Defaults to USD riskfree rate if no currency-specific riskfree rate is given.
@@ -66,9 +66,7 @@ class FactorConverter:
             4,
         )
 
-    def convert_longShortFactor(
-        self, s_factor_source: pd.Series, currency: str
-    ) -> pd.Series:
+    def longshortfactor(self, s_factor_source: pd.Series, currency: str) -> pd.Series:
         """
         Convert returns of longshort factors following Glueck et al. (2020) to different currency.
 
@@ -82,7 +80,7 @@ class FactorConverter:
 
         return round(1 / (1 + self.df_fxrates_r[currency]) * s_factor_source, 4)
 
-    def convert_dataframe(
+    def dataframe(
         self, df_factor_source: pd.DataFrame, region: str, currency: str
     ) -> pd.DataFrame:
         """
@@ -99,24 +97,16 @@ class FactorConverter:
         """
 
         df_factor_target = pd.DataFrame()
-        df_factor_target["MktRF"] = self.convert_mktrf(
-            df_factor_source["MktRF"], currency
-        )
-        df_factor_target["SMB"] = self.convert_longShortFactor(
-            df_factor_source["SMB"], currency
-        )
-        df_factor_target["HML"] = self.convert_longShortFactor(
-            df_factor_source["HML"], currency
-        )
-        df_factor_target["MOM"] = self.convert_longShortFactor(
-            df_factor_source["MOM"], currency
-        )
+        df_factor_target["MktRF"] = self.mktrf(df_factor_source["MktRF"], currency)
+        df_factor_target["SMB"] = self.longShortFactor(df_factor_source["SMB"], currency)
+        df_factor_target["HML"] = self.longShortFactor(df_factor_source["HML"], currency)
+        df_factor_target["MOM"] = self.longShortFactor(df_factor_source["MOM"], currency)
 
         if "RMW" in df_factor_source and "CMA" in df_factor_source:
-            df_factor_target["RMW"] = self.convert_longShortFactor(
+            df_factor_target["RMW"] = self.longShortFactor(
                 df_factor_source["RMW"], currency
             )
-            df_factor_target["CMA"] = self.convert_longShortFactor(
+            df_factor_target["CMA"] = self.longShortFactor(
                 df_factor_source["CMA"], currency
             )
 
