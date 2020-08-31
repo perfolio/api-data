@@ -1,6 +1,9 @@
 import numpy as np
-from django.db import models as models
+import pandas as pd
+from django.db import models
 from django.db.models import CharField, DateTimeField, DecimalField
+from django.core.exceptions import ObjectDoesNotExist
+from typing import List, Dict
 
 
 class DailyRiskFreeRate(models.Model):
@@ -33,6 +36,41 @@ class DailyRiskFreeRate(models.Model):
         return np.isclose(
             np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
+
+    @staticmethod
+    def from_dataframe(df: pd.DataFrame) -> Dict[str, int]:
+        # Change NaN to None for database NULL compatibility
+        df = df.where(df.notnull(), None)
+
+        update_list: List[DailyRiskFreeRate] = []
+        create_list: List[DailyRiskFreeRate] = []
+
+        for _, row in df.iterrows():
+            row_dict = row.to_dict()
+            new_instance = DailyRiskFreeRate(interval=row.name, **row_dict)
+            try:
+                instance = DailyRiskFreeRate.objects.get(
+                    interval=row.name, currency=row["currency"]
+                )
+                if not instance == new_instance:
+                    update_list.append(new_instance)
+            except ObjectDoesNotExist:
+                create_list.append(new_instance)
+
+        # Only update database if there is something to update
+        if update_list:
+            DailyRiskFreeRate.objects.bulk_update(
+                update_list, df.columns.values.to_list()
+            )
+        if create_list:
+            DailyRiskFreeRate.objects.bulk_create(create_list)
+
+        # Return summary
+        return {
+            "created": len(create_list),
+            "updated": len(update_list),
+            "unchanged": len(df.index) - len(create_list) - len(update_list),
+        }
 
 
 class MonthlyRiskFreeRate(models.Model):
