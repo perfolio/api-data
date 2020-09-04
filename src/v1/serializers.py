@@ -28,61 +28,61 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 
 class RiskFreeRateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.DailyRiskFreeRate
-        fields = ("interval", "RF")
+        model = models.RiskFreeRate
+        fields = ("period", "rf")
 
 
 class ExchangeRateUSDPerXSerializer(DynamicFieldsModelSerializer):
     class Meta:
-        model = models.DailyExchangeRateUSDPerX
+        model = models.ExchangeRateUSDPerX
         fields = "__all__"
 
 
 class ThreeFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
-        model = models.DailyThreeFourFactor
+        model = models.ThreeFourFactor
         fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
+            "period",
+            "mktrf",
+            "smb",
+            "hml",
         )
 
 
 class FourFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
-        model = models.DailyThreeFourFactor
+        model = models.ThreeFourFactor
         fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "MOM",
+            "period",
+            "mktrf",
+            "smb",
+            "hml",
+            "mom",
         )
 
 
 class FiveFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
-        model = models.DailyFiveSixFactor
+        model = models.FiveSixFactor
         fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
+            "period",
+            "mktrf",
+            "smb",
+            "hml",
+            "rmw",
+            "cma",
         )
 
 
 class SixFactorSerializer(DynamicFieldsModelSerializer):
     class Meta:
-        model = models.DailyFiveSixFactor
+        model = models.FiveSixFactor
         fields = (
-            "interval",
-            "MktRF",
-            "SMB",
-            "HML",
-            "RMW",
-            "CMA",
+            "period",
+            "mktrf",
+            "smb",
+            "hml",
+            "rmw",
+            "cma",
             "MOM",
         )

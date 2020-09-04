@@ -1,25 +1,22 @@
 import pandas as pd
-from get_data.currencies_config import currencies_fxrates
+from get_data.config.general import currencies_fxrates
 from get_data.fetch import Fetcher as fe
 from get_data.convert import FactorConverter
-
-from get_data.util import build_base_dataframes, build_model
 from v1 import models
-from get_data.french_config import regions
-from v1.models import DailyRiskFreeRate
+from get_data.config.french import regions
 
 pd.options.mode.chained_assignment = None
 
+print("Starting data import of factor returns, riskfree rates and exchange rates...")
+
 # ECB Risk Free Rates #
-df_rf_eur_d = fe.ecb_riskfreerates(freq="D")
-df_rf_eur_d["currency"] = "EUR"
-print(DailyRiskFreeRate.from_dataframe(df_rf_eur_d))
-df_rf_eur_m = fe.ecb_riskfreerates(freq="M")
-df_rf_eur_m["currency"] = "EUR"
-build_model(model=models.MonthlyRiskFreeRate, df=df_rf_eur_m)
-df_rf_eur_a = fe.ecb_riskfreerates(freq="A")
-df_rf_eur_a["currency"] = "EUR"
-build_model(model=models.AnnuallyRiskFreeRate, df=df_rf_eur_a)
+df_rf_eur_d = fe.ecb_riskfreerates("daily")
+df_rf_eur_m = fe.ecb_riskfreerates("monthly")
+df_rf_eur_a = fe.ecb_riskfreerates("annual")
+
+models.RiskFreeRate.from_dataframe(df_rf_eur_d, "daily", "EUR")
+models.RiskFreeRate.from_dataframe(df_rf_eur_m, "monthly", "EUR")
+models.RiskFreeRate.from_dataframe(df_rf_eur_a, "annual", "EUR")
 
 # Possibly add riskfree rates for other currencies here
 dict_rf_d = {"EUR": df_rf_eur_d}
@@ -28,12 +25,13 @@ dict_rf_a = {"EUR": df_rf_eur_a}
 
 # BOE Exchange Rates USD per X #
 
-df_fxrates_d = fe.boe_fxrates(freq="D")
-build_model(model=models.DailyExchangeRateUSDPerX, df=df_fxrates_d)
-df_fxrates_m = fe.boe_fxrates(freq="M")
-build_model(model=models.MonthlyExchangeRateUSDPerX, df=df_fxrates_m)
-df_fxrates_a = fe.boe_fxrates(freq="A")
-build_model(model=models.AnnuallyExchangeRateUSDPerX, df=df_fxrates_a)
+df_fxrates_d = fe.boe_fxrates("daily")
+df_fxrates_m = fe.boe_fxrates("monthly")
+df_fxrates_a = fe.boe_fxrates("annual")
+
+models.ExchangeRateUSDPerX.from_dataframe(df_fxrates_d, "daily")
+models.ExchangeRateUSDPerX.from_dataframe(df_fxrates_m, "monthly")
+models.ExchangeRateUSDPerX.from_dataframe(df_fxrates_a, "annual")
 
 # French Factor Returns #
 
@@ -42,126 +40,115 @@ build_model(model=models.AnnuallyExchangeRateUSDPerX, df=df_fxrates_a)
 print("Parsing factor returns for USA...")
 
 df_3n4factor_usa_usd_d = fe.french_factors(
-    "F-F_Research_Data_Factors_daily_CSV",
-    "F-F_Research_Data_Factors_daily.CSV",
-    freq="D",
+    "F-F_Research_Data_Factors_daily_CSV", "F-F_Research_Data_Factors_daily.CSV", "daily"
 )
 df_mom_usa_usd_d = fe.french_factors(
-    "F-F_Momentum_Factor_daily_CSV", "F-F_Momentum_Factor_daily.CSV", freq="D"
+    "F-F_Momentum_Factor_daily_CSV", "F-F_Momentum_Factor_daily.CSV", "daily"
 )
-df_3n4factor_usa_usd_d, df_rf_usd_d = build_base_dataframes(
-    df_factors=df_3n4factor_usa_usd_d,
-    df_mom=df_mom_usa_usd_d,
-    region="USA",
-    with_rf=True,
-)
-build_model(model=models.DailyThreeFourFactor, df=df_3n4factor_usa_usd_d)
+
+df_rf_usd_d = df_3n4factor_usa_usd_d[["rf"]]
+df_3n4factor_usa_usd_d.drop(["rf"], axis=1, inplace=True)
+df_3n4factor_usa_usd_d["mom"] = df_mom_usa_usd_d["mom"]
+
+models.ThreeFourFactor.from_dataframe(df_3n4factor_usa_usd_d, "daily", "USD", "usa")
+
 
 df_3n4factor_usa_usd_m = fe.french_factors(
-    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", freq="M"
+    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", "monthly"
 )
 df_mom_usa_usd_m = fe.french_factors(
-    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", freq="M"
-)
-df_3n4factor_usa_usd_m, df_rf_usd_m = build_base_dataframes(
-    df_factors=df_3n4factor_usa_usd_m,
-    df_mom=df_mom_usa_usd_m,
-    region="USA",
-    with_rf=True,
+    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", "monthly"
 )
 
-build_model(model=models.MonthlyThreeFourFactor, df=df_3n4factor_usa_usd_m)
+df_rf_usd_m = df_3n4factor_usa_usd_m[["rf"]]
+df_3n4factor_usa_usd_m.drop(["rf"], axis=1, inplace=True)
+df_3n4factor_usa_usd_m["mom"] = df_mom_usa_usd_m["mom"]
+
+models.ThreeFourFactor.from_dataframe(df_3n4factor_usa_usd_m, "monthly", "USD", "usa")
 
 df_3n4factor_usa_usd_a = fe.french_factors(
-    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", freq="A"
+    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", "annual"
 )
 df_mom_usa_usd_a = fe.french_factors(
-    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", freq="A"
-)
-df_3n4factor_usa_usd_a, df_rf_usd_a = build_base_dataframes(
-    df_factors=df_3n4factor_usa_usd_a,
-    df_mom=df_mom_usa_usd_a,
-    region="USA",
-    with_rf=True,
+    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", "annual"
 )
 
-build_model(model=models.AnnuallyThreeFourFactor, df=df_3n4factor_usa_usd_a)
+df_rf_usd_a = df_3n4factor_usa_usd_a[["rf"]]
+df_3n4factor_usa_usd_a.drop(["rf"], axis=1, inplace=True)
+df_3n4factor_usa_usd_a["mom"] = df_mom_usa_usd_a["mom"]
 
-# Build risk free rates USD
-build_model(model=models.DailyRiskFreeRate, df=df_rf_usd_d)
-build_model(model=models.MonthlyRiskFreeRate, df=df_rf_usd_m)
-build_model(model=models.AnnuallyRiskFreeRate, df=df_rf_usd_a)
+models.ThreeFourFactor.from_dataframe(df_3n4factor_usa_usd_a, "annual", "USD", "usa")
+
+# Import risk free rates USD
+
+models.RiskFreeRate.from_dataframe(df_rf_usd_d, "daily", "USD")
+models.RiskFreeRate.from_dataframe(df_rf_usd_m, "monthly", "USD")
+models.RiskFreeRate.from_dataframe(df_rf_usd_a, "annual", "USD")
+
+dict_rf_d = {"USD": df_rf_usd_d}
+dict_rf_m = {"USD": df_rf_usd_m}
+dict_rf_a = {"USD": df_rf_usd_a}
 
 df_5n6factor_usa_usd_d = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_daily_CSV",
     "F-F_Research_Data_5_Factors_2x3_daily.CSV",
-    freq="D",
+    "daily",
 )
-df_5n6factor_usa_usd_d, _ = build_base_dataframes(
-    df_factors=df_5n6factor_usa_usd_d, df_mom=df_mom_usa_usd_d, region="USA"
-)
-build_model(model=models.DailyFiveSixFactor, df=df_5n6factor_usa_usd_d)
+
+df_5n6factor_usa_usd_d.drop(["rf"], axis=1, inplace=True)
+df_5n6factor_usa_usd_d["mom"] = df_mom_usa_usd_d["mom"]
+
+models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_d, "daily", "USD", "usa")
 
 df_5n6factor_usa_usd_m = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_CSV",
     "F-F_Research_Data_5_Factors_2x3.CSV",
-    freq="M",
+    "monthly",
 )
-df_5n6factor_usa_usd_m, _ = build_base_dataframes(
-    df_factors=df_5n6factor_usa_usd_m, df_mom=df_mom_usa_usd_m, region="USA"
-)
-build_model(model=models.MonthlyFiveSixFactor, df=df_5n6factor_usa_usd_m)
+
+df_5n6factor_usa_usd_m.drop(["rf"], axis=1, inplace=True)
+df_5n6factor_usa_usd_m["mom"] = df_mom_usa_usd_m["mom"]
+
+models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_m, "monthly", "USD", "usa")
 
 df_5n6factor_usa_usd_a = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_CSV",
     "F-F_Research_Data_5_Factors_2x3.CSV",
-    freq="A",
+    "annual",
 )
-df_5n6factor_usa_usd_a, _ = build_base_dataframes(
-    df_factors=df_5n6factor_usa_usd_a, df_mom=df_mom_usa_usd_a, region="USA"
-)
-build_model(model=models.AnnuallyFiveSixFactor, df=df_5n6factor_usa_usd_a)
+
+df_5n6factor_usa_usd_a.drop(["rf"], axis=1, inplace=True)
+df_5n6factor_usa_usd_a["mom"] = df_mom_usa_usd_a["mom"]
+
+models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_a, "annual", "USD", "usa")
 
 print("Currency converting factor returns for USA...")
 
-fc_d = FactorConverter(df_fxrates_d, df_rf_usd_d, dict_rf_d, freq="D")
-fc_m = FactorConverter(df_fxrates_m, df_rf_usd_m, dict_rf_m, freq="M")
-fc_a = FactorConverter(df_fxrates_a, df_rf_usd_a, dict_rf_a, freq="A")
+fc_d = FactorConverter(df_fxrates_d, dict_rf_d)
+fc_m = FactorConverter(df_fxrates_m, dict_rf_m)
+fc_a = FactorConverter(df_fxrates_a, dict_rf_a)
 
 for currency in currencies_fxrates:
-    df_target_d = fc_d.dataframe(
-        df_factor_source=df_3n4factor_usa_usd_d, region="USA", currency=currency,
-    )
-    df_target_m = fc_m.dataframe(
-        df_factor_source=df_3n4factor_usa_usd_m, region="USA", currency=currency,
-    )
-    df_target_a = fc_a.dataframe(
-        df_factor_source=df_3n4factor_usa_usd_a, region="USA", currency=currency,
-    )
+    df_target_d = fc_d.dataframe(df_3n4factor_usa_usd_d, currency)
+    df_target_m = fc_m.dataframe(df_3n4factor_usa_usd_m, currency)
+    df_target_a = fc_a.dataframe(df_3n4factor_usa_usd_a, currency)
 
     # Create instances
-    build_model(model=models.DailyThreeFourFactor, df=df_target_d)
-    build_model(model=models.MonthlyThreeFourFactor, df=df_target_m)
-    build_model(model=models.AnnuallyThreeFourFactor, df=df_target_a)
+    models.ThreeFourFactor.from_dataframe(df_target_d, "daily", currency, "usa")
+    models.ThreeFourFactor.from_dataframe(df_target_m, "monthly", currency, "usa")
+    models.ThreeFourFactor.from_dataframe(df_target_a, "annual", currency, "usa")
 
-    df_target_d = fc_d.dataframe(
-        df_factor_source=df_5n6factor_usa_usd_d, region="USA", currency=currency,
-    )
-    df_target_m = fc_m.dataframe(
-        df_factor_source=df_5n6factor_usa_usd_m, region="USA", currency=currency,
-    )
-    df_target_a = fc_a.dataframe(
-        df_factor_source=df_5n6factor_usa_usd_a, region="USA", currency=currency,
-    )
+    df_target_d = fc_d.dataframe(df_5n6factor_usa_usd_d, currency)
+    df_target_m = fc_m.dataframe(df_5n6factor_usa_usd_m, currency)
+    df_target_a = fc_a.dataframe(df_5n6factor_usa_usd_a, currency)
 
     # Create instances
-    build_model(model=models.DailyFiveSixFactor, df=df_target_d)
-    build_model(model=models.MonthlyFiveSixFactor, df=df_target_m)
-    build_model(model=models.AnnuallyFiveSixFactor, df=df_target_a)
-
+    models.FiveSixFactor.from_dataframe(df_target_d, "daily", currency, "usa")
+    models.FiveSixFactor.from_dataframe(df_target_m, "monthly", currency, "usa")
+    models.FiveSixFactor.from_dataframe(df_target_a, "annual", currency, "usa")
 
 for region in regions:
-    print(f"Parsing factor returns for {region['name']}...")
+    print(f"Parsing factor returns for region {region['name']}...")
 
     # Check if region has 5 factor data and set flag for parsing
     try:
@@ -174,60 +161,51 @@ for region in regions:
 
     for f in region["freq"]:
 
-        df_mom_usd = fe.french_factors(
-            f["mom"], f["mom"][:-4] + ".csv", freq=f["interval"]
-        )
+        df_mom_usd = fe.french_factors(f["mom"], f["mom"][:-4] + ".csv", f["interval"])
 
         if three_factor:
             df_3n4factors_usd = fe.french_factors(
-                f["3factors"], f["3factors"][:-4] + ".csv", freq=f["interval"]
+                f["3factors"], f["3factors"][:-4] + ".csv", f["interval"]
             )
 
-            df_3n4factors_usd, _ = build_base_dataframes(
-                df_factors=df_3n4factors_usd, df_mom=df_mom_usd, region=region["name"],
-            )
+            df_3n4factors_usd.drop(["rf"], axis=1, inplace=True)
+            df_3n4factors_usd["mom"] = df_mom_usd["mom"]
 
         df_5n6factors_usd = fe.french_factors(
-            f["5factors"], f["5factors"][:-4] + ".csv", freq=f["interval"]
-        )
-        df_5n6factors_usd, _ = build_base_dataframes(
-            df_factors=df_5n6factors_usd, df_mom=df_mom_usd, region=region["name"],
+            f["5factors"], f["5factors"][:-4] + ".csv", f["interval"]
         )
 
-        if f["interval"] == "D":
-            model3n4 = models.DailyThreeFourFactor
-            model5n6 = models.DailyFiveSixFactor
+        df_5n6factors_usd.drop(["rf"], axis=1, inplace=True)
+        df_5n6factors_usd["mom"] = df_mom_usd["mom"]
+
+        if f["interval"] == "daily":
             fc = fc_d
-        elif f["interval"] == "M":
-            model3n4 = models.MonthlyThreeFourFactor
-            model5n6 = models.MonthlyFiveSixFactor
+        elif f["interval"] == "monthly":
             fc = fc_m
-        elif f["interval"] == "A":
-            model3n4 = models.AnnuallyThreeFourFactor
-            model5n6 = models.AnnuallyFiveSixFactor
+        elif f["interval"] == "annual":
             fc = fc_a
 
         if three_factor:
-            build_model(model=model3n4, df=df_3n4factors_usd)
-
-            for currency in currencies_fxrates:
-                df_converted = fc.dataframe(
-                    df_factor_source=df_3n4factors_usd,
-                    region=region["name"],
-                    currency=currency,
-                )
-
-                build_model(model=model3n4, df=df_converted)
-
-        build_model(model=model5n6, df=df_5n6factors_usd)
-
-        for currency in currencies_fxrates:
-            df_converted = fc.dataframe(
-                df_factor_source=df_5n6factors_usd,
-                region=region["name"],
-                currency=currency,
+            models.ThreeFourFactor.from_dataframe(
+                df_3n4factors_usd, f["interval"], "USD", region["name"]
             )
 
-            build_model(model=model5n6, df=df_converted)
+            for currency in currencies_fxrates:
+                df_converted = fc.dataframe(df_3n4factors_usd, currency)
+
+                models.ThreeFourFactor.from_dataframe(
+                    df_converted, f["interval"], currency, region["name"]
+                )
+
+        models.FiveSixFactor.from_dataframe(
+            df_5n6factors_usd, f["interval"], "USD", region["name"]
+        )
+
+        for currency in currencies_fxrates:
+            df_converted = fc.dataframe(df_5n6factors_usd, currency)
+
+            models.FiveSixFactor.from_dataframe(
+                df_converted, f["interval"], currency, region["name"]
+            )
 
 print("Finished data import successfully!")

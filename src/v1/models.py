@@ -6,29 +6,33 @@ from django.core.exceptions import ObjectDoesNotExist
 from typing import List, Dict
 
 
-class DailyRiskFreeRate(models.Model):
+class RiskFreeRate(models.Model):
 
     # Fields
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10)
+    period = CharField(max_length=10)
+    interval = CharField(max_length=8)
     currency = CharField(max_length=3)
-    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    rf = DecimalField(max_digits=10, decimal_places=8, null=True)
 
     class Meta:
-        ordering = ("-interval",)
+        ordering = ("-period",)
         unique_together = (
+            "period",
             "interval",
             "currency",
         )
 
     def __eq__(self, other):
-        if not isinstance(other, DailyRiskFreeRate):
+        if not isinstance(other, RiskFreeRate):
             # don't attempt to compare against other classes
             return NotImplemented
 
-        return self.interval == other.interval and DailyRiskFreeRate.__compare(
-            self.RF, other.RF
+        return (
+            self.period == other.period
+            and self.interval == other.interval
+            and RiskFreeRate.__compare(self.rf, other.rf)
         )
 
     @staticmethod
@@ -38,19 +42,32 @@ class DailyRiskFreeRate(models.Model):
         )
 
     @staticmethod
-    def from_dataframe(df: pd.DataFrame) -> Dict[str, int]:
+    def from_dataframe(df: pd.DataFrame, interval: str, currency: str) -> None:
+        """
+        Create or update instances of model with data in dataframe.
+        Implemented using batches of SQL queries.
+
+        Args:
+            df: The Pandas dataframe with the data to add or update.
+            interval: The interval of the riskfree rates.
+            currency: The currency in which the riskfree rates are.
+        """
+
         # Change NaN to None for database NULL compatibility
         df = df.where(df.notnull(), None)
 
-        update_list: List[DailyRiskFreeRate] = []
-        create_list: List[DailyRiskFreeRate] = []
+        df["interval"] = interval
+        df["currency"] = currency
+
+        update_list: List[RiskFreeRate] = []
+        create_list: List[RiskFreeRate] = []
 
         for _, row in df.iterrows():
             row_dict = row.to_dict()
-            new_instance = DailyRiskFreeRate(interval=row.name, **row_dict)
+            new_instance = RiskFreeRate(period=row.name, **row_dict)
             try:
-                instance = DailyRiskFreeRate.objects.get(
-                    interval=row.name, currency=row["currency"]
+                instance = RiskFreeRate.objects.get(
+                    period=row.name, interval=row["interval"], currency=row["currency"]
                 )
                 if not instance == new_instance:
                     update_list.append(new_instance)
@@ -59,296 +76,165 @@ class DailyRiskFreeRate(models.Model):
 
         # Only update database if there is something to update
         if update_list:
-            DailyRiskFreeRate.objects.bulk_update(
+            RiskFreeRate.objects.bulk_update(update_list, df.columns.values.to_list())
+        if create_list:
+            RiskFreeRate.objects.bulk_create(create_list)
+
+        # Print summary
+        print(
+            f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} RiskFreeRate {currency}."
+        )
+
+
+class ExchangeRateUSDPerX(models.Model):
+
+    # Fields
+    created = DateTimeField(auto_now_add=True, editable=False)
+    last_updated = DateTimeField(auto_now=True, editable=False)
+    period = CharField(max_length=10)
+    interval = CharField(max_length=8)
+    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
+    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
+    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
+    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
+    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
+    DKK = DecimalField(max_digits=10, decimal_places=8, null=True)
+    NZD = DecimalField(max_digits=10, decimal_places=8, null=True)
+    NOK = DecimalField(max_digits=10, decimal_places=8, null=True)
+    SEK = DecimalField(max_digits=10, decimal_places=8, null=True)
+    PLN = DecimalField(max_digits=10, decimal_places=8, null=True)
+    ILS = DecimalField(max_digits=10, decimal_places=8, null=True)
+    KRW = DecimalField(max_digits=10, decimal_places=8, null=True)
+    TRY = DecimalField(max_digits=10, decimal_places=8, null=True)
+
+    class Meta:
+        ordering = ("-period",)
+        unique_together = (
+            "period",
+            "interval",
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, ExchangeRateUSDPerX):
+            # don't attempt to compare against other classes
+            return NotImplemented
+
+        return (
+            self.period == other.period
+            and self.interval == other.interval
+            and ExchangeRateUSDPerX.__compare(self.EUR, other.EUR)
+            and ExchangeRateUSDPerX.__compare(self.JPY, other.JPY)
+            and ExchangeRateUSDPerX.__compare(self.GBP, other.GBP)
+            and ExchangeRateUSDPerX.__compare(self.CHF, other.CHF)
+            and ExchangeRateUSDPerX.__compare(self.RUB, other.RUB)
+            and ExchangeRateUSDPerX.__compare(self.AUD, other.AUD)
+            and ExchangeRateUSDPerX.__compare(self.BRL, other.BRL)
+            and ExchangeRateUSDPerX.__compare(self.CAD, other.CAD)
+            and ExchangeRateUSDPerX.__compare(self.CNY, other.CNY)
+            and ExchangeRateUSDPerX.__compare(self.INR, other.INR)
+            and ExchangeRateUSDPerX.__compare(self.DKK, other.DKK)
+            and ExchangeRateUSDPerX.__compare(self.NZD, other.NZD)
+            and ExchangeRateUSDPerX.__compare(self.NOK, other.NOK)
+            and ExchangeRateUSDPerX.__compare(self.SEK, other.SEK)
+            and ExchangeRateUSDPerX.__compare(self.PLN, other.PLN)
+            and ExchangeRateUSDPerX.__compare(self.ILS, other.ILS)
+            and ExchangeRateUSDPerX.__compare(self.KRW, other.KRW)
+            and ExchangeRateUSDPerX.__compare(self.TRY, other.TRY)
+        )
+
+    @staticmethod
+    def __compare(x, y):
+        return np.isclose(
+            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+        )
+
+    @staticmethod
+    def from_dataframe(df: pd.DataFrame, interval: str) -> None:
+        """
+        Create or update instances of model with data in dataframe.
+        Implemented using batches of SQL queries.
+
+        Args:
+            df: The Pandas dataframe with the data to add or update.
+            interval: The interval of the fx rates.
+        """
+
+        # Change NaN to None for database NULL compatibility
+        df = df.where(df.notnull(), None)
+
+        df["interval"] = interval
+
+        update_list: List[ExchangeRateUSDPerX] = []
+        create_list: List[ExchangeRateUSDPerX] = []
+
+        for _, row in df.iterrows():
+            row_dict = row.to_dict()
+            new_instance = ExchangeRateUSDPerX(period=row.name, **row_dict)
+            try:
+                instance = ExchangeRateUSDPerX.objects.get(
+                    period=row.name, interval=row["interval"]
+                )
+                if not instance == new_instance:
+                    update_list.append(new_instance)
+            except ObjectDoesNotExist:
+                create_list.append(new_instance)
+
+        # Only update database if there is something to update
+        if update_list:
+            ExchangeRateUSDPerX.objects.bulk_update(
                 update_list, df.columns.values.to_list()
             )
         if create_list:
-            DailyRiskFreeRate.objects.bulk_create(create_list)
+            ExchangeRateUSDPerX.objects.bulk_create(create_list)
 
-        # Return summary
-        return {
-            "created": len(create_list),
-            "updated": len(update_list),
-            "unchanged": len(df.index) - len(create_list) - len(update_list),
-        }
+        # Print summary
+        print(
+            f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} ExchangeRateUSDPerX."
+        )
 
 
-class MonthlyRiskFreeRate(models.Model):
+class ThreeFourFactor(models.Model):
 
     # Fields
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=7)
-    currency = CharField(max_length=3)
-    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-
-    def __eq__(self, other):
-        if not isinstance(other, MonthlyRiskFreeRate):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return self.interval == other.interval and MonthlyRiskFreeRate.__compare(
-            self.RF, other.RF
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class AnnuallyRiskFreeRate(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=4)
-    currency = CharField(max_length=3)
-    RF = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-
-    def __eq__(self, other):
-        if not isinstance(other, AnnuallyRiskFreeRate):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return self.interval == other.interval and AnnuallyRiskFreeRate.__compare(
-            self.RF, other.RF
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class DailyExchangeRateUSDPerX(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    DKK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NZD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NOK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SEK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    PLN = DecimalField(max_digits=10, decimal_places=8, null=True)
-    ILS = DecimalField(max_digits=10, decimal_places=8, null=True)
-    KRW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    TRY = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-
-    def __eq__(self, other):
-        if not isinstance(other, DailyExchangeRateUSDPerX):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and DailyExchangeRateUSDPerX.__compare(self.EUR, other.EUR)
-            and DailyExchangeRateUSDPerX.__compare(self.JPY, other.JPY)
-            and DailyExchangeRateUSDPerX.__compare(self.GBP, other.GBP)
-            and DailyExchangeRateUSDPerX.__compare(self.CHF, other.CHF)
-            and DailyExchangeRateUSDPerX.__compare(self.RUB, other.RUB)
-            and DailyExchangeRateUSDPerX.__compare(self.AUD, other.AUD)
-            and DailyExchangeRateUSDPerX.__compare(self.BRL, other.BRL)
-            and DailyExchangeRateUSDPerX.__compare(self.CAD, other.CAD)
-            and DailyExchangeRateUSDPerX.__compare(self.CNY, other.CNY)
-            and DailyExchangeRateUSDPerX.__compare(self.INR, other.INR)
-            and DailyExchangeRateUSDPerX.__compare(self.DKK, other.DKK)
-            and DailyExchangeRateUSDPerX.__compare(self.NZD, other.NZD)
-            and DailyExchangeRateUSDPerX.__compare(self.NOK, other.NOK)
-            and DailyExchangeRateUSDPerX.__compare(self.SEK, other.SEK)
-            and DailyExchangeRateUSDPerX.__compare(self.PLN, other.PLN)
-            and DailyExchangeRateUSDPerX.__compare(self.ILS, other.ILS)
-            and DailyExchangeRateUSDPerX.__compare(self.KRW, other.KRW)
-            and DailyExchangeRateUSDPerX.__compare(self.TRY, other.TRY)
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class MonthlyExchangeRateUSDPerX(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    DKK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NZD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NOK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SEK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    PLN = DecimalField(max_digits=10, decimal_places=8, null=True)
-    ILS = DecimalField(max_digits=10, decimal_places=8, null=True)
-    KRW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    TRY = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-
-    def __eq__(self, other):
-        if not isinstance(other, MonthlyExchangeRateUSDPerX):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and MonthlyExchangeRateUSDPerX.__compare(self.EUR, other.EUR)
-            and MonthlyExchangeRateUSDPerX.__compare(self.JPY, other.JPY)
-            and MonthlyExchangeRateUSDPerX.__compare(self.GBP, other.GBP)
-            and MonthlyExchangeRateUSDPerX.__compare(self.CHF, other.CHF)
-            and MonthlyExchangeRateUSDPerX.__compare(self.RUB, other.RUB)
-            and MonthlyExchangeRateUSDPerX.__compare(self.AUD, other.AUD)
-            and MonthlyExchangeRateUSDPerX.__compare(self.BRL, other.BRL)
-            and MonthlyExchangeRateUSDPerX.__compare(self.CAD, other.CAD)
-            and MonthlyExchangeRateUSDPerX.__compare(self.CNY, other.CNY)
-            and MonthlyExchangeRateUSDPerX.__compare(self.INR, other.INR)
-            and MonthlyExchangeRateUSDPerX.__compare(self.DKK, other.DKK)
-            and MonthlyExchangeRateUSDPerX.__compare(self.NZD, other.NZD)
-            and MonthlyExchangeRateUSDPerX.__compare(self.NOK, other.NOK)
-            and MonthlyExchangeRateUSDPerX.__compare(self.SEK, other.SEK)
-            and MonthlyExchangeRateUSDPerX.__compare(self.PLN, other.PLN)
-            and MonthlyExchangeRateUSDPerX.__compare(self.ILS, other.ILS)
-            and MonthlyExchangeRateUSDPerX.__compare(self.KRW, other.KRW)
-            and MonthlyExchangeRateUSDPerX.__compare(self.TRY, other.TRY)
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class AnnuallyExchangeRateUSDPerX(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10, primary_key=True)
-    EUR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    JPY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    GBP = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CHF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RUB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    AUD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    BRL = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CAD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CNY = DecimalField(max_digits=10, decimal_places=8, null=True)
-    INR = DecimalField(max_digits=10, decimal_places=8, null=True)
-    DKK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NZD = DecimalField(max_digits=10, decimal_places=8, null=True)
-    NOK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SEK = DecimalField(max_digits=10, decimal_places=8, null=True)
-    PLN = DecimalField(max_digits=10, decimal_places=8, null=True)
-    ILS = DecimalField(max_digits=10, decimal_places=8, null=True)
-    KRW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    TRY = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-
-    def __eq__(self, other):
-        if not isinstance(other, AnnuallyExchangeRateUSDPerX):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and AnnuallyExchangeRateUSDPerX.__compare(self.EUR, other.EUR)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.JPY, other.JPY)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.GBP, other.GBP)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.CHF, other.CHF)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.RUB, other.RUB)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.AUD, other.AUD)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.BRL, other.BRL)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.CAD, other.CAD)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.CNY, other.CNY)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.INR, other.INR)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.DKK, other.DKK)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.NZD, other.NZD)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.NOK, other.NOK)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.SEK, other.SEK)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.PLN, other.PLN)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.ILS, other.ILS)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.KRW, other.KRW)
-            and AnnuallyExchangeRateUSDPerX.__compare(self.TRY, other.TRY)
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class DailyThreeFourFactor(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10)
+    period = CharField(max_length=10)
+    interval = CharField(max_length=8)
     currency = CharField(max_length=3)
     region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
+    mktrf = DecimalField(max_digits=10, decimal_places=8, null=True)
+    smb = DecimalField(max_digits=10, decimal_places=8, null=True)
+    hml = DecimalField(max_digits=10, decimal_places=8, null=True)
+    mom = DecimalField(max_digits=10, decimal_places=8, null=True)
 
     class Meta:
-        ordering = ("-interval",)
+        ordering = ("-period",)
         unique_together = (
+            "period",
             "interval",
             "currency",
             "region",
         )
 
     def __eq__(self, other):
-        if not isinstance(other, DailyThreeFourFactor):
+        if not isinstance(other, ThreeFourFactor):
             # don't attempt to compare against other classes
             return NotImplemented
 
         return (
-            self.interval == other.interval
+            self.period == other.period
+            and self.interval == other.interval
             and self.currency == other.currency
             and self.region == other.region
-            and DailyThreeFourFactor.__compare(self.MktRF, other.MktRF)
-            and DailyThreeFourFactor.__compare(self.SMB, other.SMB)
-            and DailyThreeFourFactor.__compare(self.HML, other.HML)
-            and DailyThreeFourFactor.__compare(self.MOM, other.MOM)
+            and ThreeFourFactor.__compare(self.mktrf, other.mktrf)
+            and ThreeFourFactor.__compare(self.smb, other.smb)
+            and ThreeFourFactor.__compare(self.hml, other.hml)
+            and ThreeFourFactor.__compare(self.mom, other.mom)
         )
 
     @staticmethod
@@ -357,41 +243,99 @@ class DailyThreeFourFactor(models.Model):
             np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
+    @staticmethod
+    def from_dataframe(
+        df: pd.DataFrame, interval: str, currency: str, region: str
+    ) -> None:
+        """
+        Create or update instances of model with data in dataframe.
+        Implemented using batches of SQL queries.
 
-class MonthlyThreeFourFactor(models.Model):
+        Args:
+            df: The Pandas dataframe with the data to add or update.
+            interval: The interval of the factor returns.
+            currency: The currency in which the factor returns are.
+            region: The region for which the factor returns are.
+        """
+
+        # Change NaN to None for database NULL compatibility
+        df = df.where(df.notnull(), None)
+
+        df["interval"] = interval
+        df["currency"] = currency
+        df["region"] = region
+
+        update_list: List[ThreeFourFactor] = []
+        create_list: List[ThreeFourFactor] = []
+
+        for _, row in df.iterrows():
+            row_dict = row.to_dict()
+            new_instance = ThreeFourFactor(period=row.name, **row_dict)
+            try:
+                instance = ThreeFourFactor.objects.get(
+                    period=row.name,
+                    interval=row["interval"],
+                    currency=row["currency"],
+                    region=row["region"],
+                )
+                if not instance == new_instance:
+                    update_list.append(new_instance)
+            except ObjectDoesNotExist:
+                create_list.append(new_instance)
+
+        # Only update database if there is something to update
+        if update_list:
+            ThreeFourFactor.objects.bulk_update(update_list, df.columns.values.to_list())
+        if create_list:
+            ThreeFourFactor.objects.bulk_create(create_list)
+
+        # Print summary
+        print(
+            f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} ThreeFourFactor {region} {currency}."
+        )
+
+
+class FiveSixFactor(models.Model):
 
     # Fields
     created = DateTimeField(auto_now_add=True, editable=False)
     last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=7)
+    period = CharField(max_length=10)
+    interval = CharField(max_length=8)
     currency = CharField(max_length=3)
     region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
+    mktrf = DecimalField(max_digits=10, decimal_places=8, null=True)
+    smb = DecimalField(max_digits=10, decimal_places=8, null=True)
+    hml = DecimalField(max_digits=10, decimal_places=8, null=True)
+    rmw = DecimalField(max_digits=10, decimal_places=8, null=True)
+    cma = DecimalField(max_digits=10, decimal_places=8, null=True)
+    mom = DecimalField(max_digits=10, decimal_places=8, null=True)
 
     class Meta:
-        ordering = ("-interval",)
+        ordering = ("-period",)
         unique_together = (
+            "period",
             "interval",
             "currency",
             "region",
         )
 
     def __eq__(self, other):
-        if not isinstance(other, MonthlyThreeFourFactor):
+        if not isinstance(other, FiveSixFactor):
             # don't attempt to compare against other classes
             return NotImplemented
 
         return (
-            self.interval == other.interval
+            self.period == other.period
+            and self.interval == other.interval
             and self.currency == other.currency
             and self.region == other.region
-            and MonthlyThreeFourFactor.__compare(self.MktRF, other.MktRF)
-            and MonthlyThreeFourFactor.__compare(self.SMB, other.SMB)
-            and MonthlyThreeFourFactor.__compare(self.HML, other.HML)
-            and MonthlyThreeFourFactor.__compare(self.MOM, other.MOM)
+            and FiveSixFactor.__compare(self.mktrf, other.mktrf)
+            and FiveSixFactor.__compare(self.smb, other.smb)
+            and FiveSixFactor.__compare(self.hml, other.hml)
+            and FiveSixFactor.__compare(self.rmw, other.rmw)
+            and FiveSixFactor.__compare(self.cma, other.cma)
+            and FiveSixFactor.__compare(self.mom, other.mom)
         )
 
     @staticmethod
@@ -400,186 +344,53 @@ class MonthlyThreeFourFactor(models.Model):
             np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
         )
 
-
-class AnnuallyThreeFourFactor(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=4)
-    currency = CharField(max_length=3)
-    region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-        unique_together = (
-            "interval",
-            "currency",
-            "region",
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, AnnuallyThreeFourFactor):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and self.currency == other.currency
-            and self.region == other.region
-            and AnnuallyThreeFourFactor.__compare(self.MktRF, other.MktRF)
-            and AnnuallyThreeFourFactor.__compare(self.SMB, other.SMB)
-            and AnnuallyThreeFourFactor.__compare(self.HML, other.HML)
-            and AnnuallyThreeFourFactor.__compare(self.MOM, other.MOM)
-        )
-
     @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
+    def from_dataframe(
+        df: pd.DataFrame, interval: str, currency: str, region: str
+    ) -> None:
+        """
+        Create or update instances of model with data in dataframe.
+        Implemented using batches of SQL queries.
 
+        Args:
+            df: The Pandas dataframe with the data to add or update.
+            interval: The interval of the factor returns.
+            currency: The currency in which the factor returns are.
+            region: The region for which the factor returns are.
+        """
 
-class DailyFiveSixFactor(models.Model):
+        # Change NaN to None for database NULL compatibility
+        df = df.where(df.notnull(), None)
 
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=10)
-    currency = CharField(max_length=3)
-    region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
+        df["interval"] = interval
+        df["currency"] = currency
+        df["region"] = region
 
-    class Meta:
-        ordering = ("-interval",)
-        unique_together = (
-            "interval",
-            "currency",
-            "region",
-        )
+        update_list: List[FiveSixFactor] = []
+        create_list: List[FiveSixFactor] = []
 
-    def __eq__(self, other):
-        if not isinstance(other, DailyFiveSixFactor):
-            # don't attempt to compare against other classes
-            return NotImplemented
+        for _, row in df.iterrows():
+            row_dict = row.to_dict()
+            new_instance = FiveSixFactor(period=row.name, **row_dict)
+            try:
+                instance = FiveSixFactor.objects.get(
+                    period=row.name,
+                    interval=row["interval"],
+                    currency=row["currency"],
+                    region=row["region"],
+                )
+                if not instance == new_instance:
+                    update_list.append(new_instance)
+            except ObjectDoesNotExist:
+                create_list.append(new_instance)
 
-        return (
-            self.interval == other.interval
-            and self.currency == other.currency
-            and self.region == other.region
-            and DailyFiveSixFactor.__compare(self.MktRF, other.MktRF)
-            and DailyFiveSixFactor.__compare(self.SMB, other.SMB)
-            and DailyFiveSixFactor.__compare(self.HML, other.HML)
-            and DailyFiveSixFactor.__compare(self.RMW, other.RMW)
-            and DailyFiveSixFactor.__compare(self.CMA, other.CMA)
-            and DailyFiveSixFactor.__compare(self.MOM, other.MOM)
-        )
+        # Only update database if there is something to update
+        if update_list:
+            FiveSixFactor.objects.bulk_update(update_list, df.columns.values.to_list())
+        if create_list:
+            FiveSixFactor.objects.bulk_create(create_list)
 
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class MonthlyFiveSixFactor(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=7)
-    currency = CharField(max_length=3)
-    region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-        unique_together = (
-            "interval",
-            "currency",
-            "region",
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, MonthlyFiveSixFactor):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and self.currency == other.currency
-            and self.region == other.region
-            and MonthlyFiveSixFactor.__compare(self.MktRF, other.MktRF)
-            and MonthlyFiveSixFactor.__compare(self.SMB, other.SMB)
-            and MonthlyFiveSixFactor.__compare(self.HML, other.HML)
-            and MonthlyFiveSixFactor.__compare(self.RMW, other.RMW)
-            and MonthlyFiveSixFactor.__compare(self.CMA, other.CMA)
-            and MonthlyFiveSixFactor.__compare(self.MOM, other.MOM)
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
-        )
-
-
-class AnnuallyFiveSixFactor(models.Model):
-
-    # Fields
-    created = DateTimeField(auto_now_add=True, editable=False)
-    last_updated = DateTimeField(auto_now=True, editable=False)
-    interval = CharField(max_length=4)
-    currency = CharField(max_length=3)
-    region = CharField(max_length=21)
-    MktRF = DecimalField(max_digits=10, decimal_places=8, null=True)
-    SMB = DecimalField(max_digits=10, decimal_places=8, null=True)
-    HML = DecimalField(max_digits=10, decimal_places=8, null=True)
-    RMW = DecimalField(max_digits=10, decimal_places=8, null=True)
-    CMA = DecimalField(max_digits=10, decimal_places=8, null=True)
-    MOM = DecimalField(max_digits=10, decimal_places=8, null=True)
-
-    class Meta:
-        ordering = ("-interval",)
-        unique_together = (
-            "interval",
-            "currency",
-            "region",
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, AnnuallyFiveSixFactor):
-            # don't attempt to compare against other classes
-            return NotImplemented
-
-        return (
-            self.interval == other.interval
-            and self.currency == other.currency
-            and self.region == other.region
-            and AnnuallyFiveSixFactor.__compare(self.MktRF, other.MktRF)
-            and AnnuallyFiveSixFactor.__compare(self.SMB, other.SMB)
-            and AnnuallyFiveSixFactor.__compare(self.HML, other.HML)
-            and AnnuallyFiveSixFactor.__compare(self.RMW, other.RMW)
-            and AnnuallyFiveSixFactor.__compare(self.CMA, other.CMA)
-            and AnnuallyFiveSixFactor.__compare(self.MOM, other.MOM)
-        )
-
-    @staticmethod
-    def __compare(x, y):
-        return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+        # Print summary
+        print(
+            f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} FiveSixFactor {region} {currency}."
         )

@@ -2,31 +2,21 @@ from rest_framework import generics, permissions
 from rest_framework.exceptions import ValidationError, Throttled
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
-
+from drf_renderer_xlsx.mixins import XLSXFileMixin
+from typing import Dict, Any, Optional
+from django.db.models import Model
 from . import models, serializers
+import re
 
-from get_data.currencies_config import currencies_fxrates, currencies_rf
-
-# Config #
-
-intervals = ["daily", "monthly", "annually"]
-factors = ["MktRF", "SMB", "HML", "MOM", "RMW", "CMA"]
-regions = [
-    "USA",
-    "Developed",
-    "Developed_ex_US",
-    "Europe",
-    "Japan",
-    "Asia_Pacific_ex_Japan",
-    "North_America",
-    "Emerging",
-]
+from get_data.config.general import (
+    currencies_fxrates,
+    currencies_rf,
+    regions,
+    intervals,
+    factors,
+)
 
 # Helpers #
-
-
-def errorhandler(message):
-    raise ValidationError({"Error": message})
 
 
 def throttle_handler(wait):
@@ -37,65 +27,79 @@ def throttle_handler(wait):
     )
 
 
-def factors_validate_and_filter(obj, factor_model):
+def get_params(
+    obj: Any, rf: bool = False, factor: Optional[int] = None
+) -> Dict[str, str]:
+    """
+    """
+    param_dict = {}
+    param_dict["currency"] = obj.kwargs["currency"].upper()
+    param_dict["interval"] = obj.kwargs["interval"].lower()
+    param_dict["from"] = obj.request.GET.get("from")
+    param_dict["to"] = obj.request.GET.get("to")
+    param_dict["dropna"] = obj.request.GET.get("dropna")
 
-    factor = obj.kwargs["factor"]
-    region = obj.kwargs["region"]
-    currency = obj.kwargs["currency"].upper()
-    interval = obj.kwargs["interval"].lower()
+    # Parsing currency
+    # If rf is requested check for currencies_rf else check for currencies_fxrates
+    if (rf and param_dict["currency"] not in currencies_rf) or (
+        not rf and param_dict["currency"] not in currencies_fxrates
+    ):
+        ValidationError(
+            {"Error": "Currency not supported (yet). See docs for currencies supported."}
+        )
+    # Parsing interval
+    if param_dict["interval"] == "d":
+        param_dict["interval"] = "daily"
+    elif param_dict["interval"] == "m":
+        param_dict["interval"] = "monthly"
+    elif param_dict["interval"] == "a":
+        param_dict["interval"] = "annual"
+    if param_dict["interval"] not in intervals:
+        ValidationError({"Error": "Invalid interval. Choose daily, monthly or annual."})
 
-    if interval == "daily" and factor_model in [3, 4]:
-        model = models.DailyThreeFourFactor
-    elif interval == "daily" and factor_model in [5, 6]:
-        model = models.DailyFiveSixFactor
-    elif interval == "monthly" and factor_model in [3, 4]:
-        model = models.MonthlyThreeFourFactor
-    elif interval == "monthly" and factor_model in [5, 6]:
-        model = models.MonthlyFiveSixFactor
-    elif interval == "annually" and factor_model in [3, 4]:
-        model = models.AnnuallyThreeFourFactor
-    elif interval == "annually" and factor_model in [5, 6]:
-        model = models.AnnuallyFiveSixFactor
+    # Parsing factors if needed
+    if factor:
+        param_dict["factor"] = obj.kwargs["factor"].lower()
+        param_dict["region"] = obj.kwargs["region"].lower()
 
-    from_ = obj.request.GET.get("from")
-    to_ = obj.request.GET.get("to")
-    dropna_ = obj.request.GET.get("dropna")
+        if param_dict["factor"] not in factors[:factor] and param_dict["factor"] != "all":
+            ValidationError({"Error": "Invalid factor. See docs for factors supported."})
+        if param_dict["region"] not in regions:
+            ValidationError({"Error": "Invalid region. See docs for regions supported"})
 
-    if factor not in factors[:factor_model] and factor != "all":
-        errorhandler("Invalid factor. See docs for factors supported.")
-    if region not in regions:
-        errorhandler("Invalid region. See docs for regions supported")
-    if currency not in currencies_fxrates:
-        errorhandler("Currency not supported (yet). See docs for currencies supported.")
-    if interval.lower() not in intervals:
-        errorhandler("Invalid interval. Choose daily, monthly or annually.")
+    return param_dict
+
+
+def range_filter(from_: str, to_: str, interval: str, model: Model) -> Any:
+    """
+    """
+    date_patterns = {
+        "daily": "^[1,2][9,0,1][0-9][0-9]-[0,1][0-9]-[0-3][0-9]$",
+        "monthly": "^[1,2][9,0,1][0-9][0-9]-[0,1][0-9](?:-[0-3][0-9])?$",
+        "annual": "^[1,2][9,0,1][0-9][0-9](?:-[0,1][0-9](?:-[0-3][0-9])?)?$",
+    }
+    date_formats = {
+        "daily": "YYYY-MM-DD",
+        "monthly": "YYYY-MM or YYYY-MM-DD",
+        "annual": "YYYY, YYYY-MM or YYYY-MM-DD",
+    }
 
     if from_ is None and to_ is None:
-        objects = model.objects.all()
-    elif not from_:
-        errorhandler("Please select a valid 'from' parameter.")
-    elif not to_:
-        errorhandler("Please select a valid 'to' parameter.")
+        return model.objects.all()
     else:
-        objects = model.objects.filter(interval__range=[from_, to_])
-
-    objects = objects.filter(currency__exact=currency, region__exact=region)
-
-    if factor != "all":
-        objects = objects.values("interval", factor)
-
-    if dropna_ and dropna_.lower() == "false":
-        return objects
-
-    if factor != "all":
-        return objects.exclude(**{factor + "__isnull": True})
-
-    filter_fields = {}
-
-    for f in factors[:factor_model]:
-        filter_fields[f + "__isnull"] = True
-
-    return objects.exclude(**filter_fields)
+        if not re.search(date_patterns[interval], from_):
+            raise ValidationError(
+                {
+                    "Error": f"Invalid 'from' parameter. Use {date_formats[interval]} format only."
+                }
+            )
+        if not re.search(date_patterns[interval], to_):
+            raise ValidationError(
+                {
+                    "Error": f"Invalid 'to' parameter. Use {date_formats[interval]} format only."
+                }
+            )
+        return model.objects.filter(period__range=[from_, to_])
 
 
 class QueryTokenAuthentication(TokenAuthentication):
@@ -123,50 +127,33 @@ class ReadOnlyAPI(permissions.BasePermission):
 # Risk Free Rate #
 
 
-class RiskFreeRateView(generics.ListAPIView):
+class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
     """View for the RiskFreeRate class"""
 
     serializer_class = serializers.RiskFreeRateSerializer
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "rf_perfolio.xlsx"
 
     def get_queryset(self):
-        currency = self.kwargs["currency"]
-        interval = self.kwargs["interval"].lower()
+        params_dict = get_params(self, True)
 
-        if currency not in currencies_rf:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-        if interval.lower() not in intervals:
-            errorhandler("Invalid interval. Choose daily, monthly or annually.")
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.RiskFreeRate,
+        )
 
-        if interval == "daily":
-            model = models.DailyRiskFreeRate
-        elif interval == "monthly":
-            model = models.MonthlyRiskFreeRate
-        elif interval == "annually":
-            model = models.AnnuallyRiskFreeRate
+        objects = objects.filter(
+            currency__exact=params_dict["currency"],
+            interval__exact=params_dict["interval"],
+        )
 
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
-
-        if from_ is None and to_ is None:
-            objects = model.objects.all()
-        elif not from_:
-            errorhandler("Please select a valid 'from' parameter.")
-        elif not to_:
-            errorhandler("Please select a valid 'to' parameter.")
-        else:
-            objects = model.objects.filter(interval__range=[from_, to_])
-
-        objects = objects.filter(currency__exact=currency)
-
-        if dropna_ and dropna_.lower() == "false":
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
             return objects
 
-        return objects.exclude(RF__isnull=True)
+        return objects.exclude(rf__isnull=True)
 
     def throttled(self, request, wait):
         throttle_handler(wait)
@@ -175,57 +162,40 @@ class RiskFreeRateView(generics.ListAPIView):
 # Exchange Rates #
 
 
-class ExchangeRateUSDPerXView(generics.ListAPIView):
+class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyExchangeRateUSDPerX class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "fx_perfolio.xlsx"
 
     # Overwrite list method to make use of dynamic serializer
     def list(self, request, currency, interval):
         queryset = self.get_queryset()
         serializer = serializers.ExchangeRateUSDPerXSerializer(
-            queryset, many=True, fields=["interval", currency]
+            queryset, many=True, fields=["period", currency.upper()]
         )
         return Response(serializer.data)
 
     def get_queryset(self):
-        currency = self.kwargs["currency"]
-        interval = self.kwargs["interval"].lower()
 
-        if currency not in currencies_fxrates:
-            errorhandler(
-                "Currency not supported (yet). See docs for currencies supported."
-            )
-        if interval.lower() not in intervals:
-            errorhandler("Invalid interval. Choose daily, monthly or annually.")
+        params_dict = get_params(self)
 
-        if interval == "daily":
-            model = models.DailyExchangeRateUSDPerX
-        elif interval == "monthly":
-            model = models.MonthlyExchangeRateUSDPerX
-        elif interval == "annually":
-            model = models.AnnuallyExchangeRateUSDPerX
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.ExchangeRateUSDPerX,
+        )
 
-        from_ = self.request.GET.get("from")
-        to_ = self.request.GET.get("to")
-        dropna_ = self.request.GET.get("dropna")
+        objects = objects.values("period", params_dict["currency"]).filter(
+            interval__exact=params_dict["interval"]
+        )
 
-        if from_ is None and to_ is None:
-            objects = model.objects.all()
-        elif not from_:
-            errorhandler("Please select a valid 'from' parameter.")
-        elif not to_:
-            errorhandler("Please select a valid 'to' parameter.")
-        else:
-            objects = model.objects.filter(interval__range=[from_, to_])
-
-        objects = objects.values("interval", currency)
-
-        if dropna_ and dropna_.lower() == "false":
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
             return objects
 
-        return objects.exclude(**{currency + "__isnull": True})
+        return objects.exclude(**{params_dict["currency"] + "__isnull": True})
 
     def throttled(self, request, wait):
         throttle_handler(wait)
@@ -234,34 +204,65 @@ class ExchangeRateUSDPerXView(generics.ListAPIView):
 # Factor returns #
 
 
-class ThreeFactorView(generics.ListAPIView):
+class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the ThreeFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "3factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
         fields = {}
 
         if factor.lower() != "all":
-            fields = {"fields": ["interval", factor]}
+            fields = {"fields": ["period", factor]}
 
         serializer = serializers.ThreeFactorSerializer(queryset, many=True, **fields)
         return Response(serializer.data)
 
     def get_queryset(self):
-        return factors_validate_and_filter(self, 3)
+        params_dict = get_params(self, False, 3)
+
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.ThreeFourFactor,
+        )
+
+        objects = objects.filter(
+            currency__exact=params_dict["currency"],
+            region__exact=params_dict["region"],
+            interval__exact=params_dict["interval"],
+        )
+
+        if params_dict["factor"] != "all":
+            objects = objects.values("period", params_dict["factor"])
+
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
+            return objects
+
+        if params_dict["factor"] != "all":
+            return objects.exclude(**{params_dict["factor"] + "__isnull": True})
+
+        filter_fields = {}
+
+        for f in factors[:3]:
+            filter_fields[f + "__isnull"] = True
+
+        return objects.exclude(**filter_fields)
 
     def throttled(self, request, wait):
         throttle_handler(wait)
 
 
-class FourFactorView(generics.ListAPIView):
+class FourFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFourFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "4factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
@@ -274,17 +275,45 @@ class FourFactorView(generics.ListAPIView):
         return Response(serializer.data)
 
     def get_queryset(self):
-        return factors_validate_and_filter(self, 4)
+        params_dict = get_params(self, False, 4)
+
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.ThreeFourFactor,
+        )
+
+        objects = objects.filter(
+            currency__exact=params_dict["currency"], region__exact=params_dict["region"]
+        )
+
+        if params_dict["factor"] != "all":
+            objects = objects.values("interval", params_dict["factor"])
+
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
+            return objects
+
+        if params_dict["factor"] != "all":
+            return objects.exclude(**{params_dict["factor"] + "__isnull": True})
+
+        filter_fields = {}
+
+        for f in factors[:4]:
+            filter_fields[f + "__isnull"] = True
+
+        return objects.exclude(**filter_fields)
 
     def throttled(self, request, wait):
         throttle_handler(wait)
 
 
-class FiveFactorView(generics.ListAPIView):
+class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFiveFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "5factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
@@ -297,17 +326,45 @@ class FiveFactorView(generics.ListAPIView):
         return Response(serializer.data)
 
     def get_queryset(self):
-        return factors_validate_and_filter(self, 5)
+        params_dict = get_params(self, False, 5)
+
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.FiveSixFactor,
+        )
+
+        objects = objects.filter(
+            currency__exact=params_dict["currency"], region__exact=params_dict["region"]
+        )
+
+        if params_dict["factor"] != "all":
+            objects = objects.values("interval", params_dict["factor"])
+
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
+            return objects
+
+        if params_dict["factor"] != "all":
+            return objects.exclude(**{params_dict["factor"] + "__isnull": True})
+
+        filter_fields = {}
+
+        for f in factors[:5]:
+            filter_fields[f + "__isnull"] = True
+
+        return objects.exclude(**filter_fields)
 
     def throttled(self, request, wait):
         throttle_handler(wait)
 
 
-class SixFactorView(generics.ListAPIView):
+class SixFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailySixFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     authentication_classes = [QueryTokenAuthentication]
+    filename = "6factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
         queryset = self.get_queryset()
@@ -320,7 +377,34 @@ class SixFactorView(generics.ListAPIView):
         return Response(serializer.data)
 
     def get_queryset(self):
-        return factors_validate_and_filter(self, 6)
+        params_dict = get_params(self, False, 6)
+
+        objects = range_filter(
+            params_dict["from"],
+            params_dict["to"],
+            params_dict["interval"],
+            models.FiveSixFactor,
+        )
+
+        objects = objects.filter(
+            currency__exact=params_dict["currency"], region__exact=params_dict["region"]
+        )
+
+        if params_dict["factor"] != "all":
+            objects = objects.values("interval", params_dict["factor"])
+
+        if params_dict["dropna"] and params_dict["dropna"].lower() == "false":
+            return objects
+
+        if params_dict["factor"] != "all":
+            return objects.exclude(**{params_dict["factor"] + "__isnull": True})
+
+        filter_fields = {}
+
+        for f in factors[:6]:
+            filter_fields[f + "__isnull"] = True
+
+        return objects.exclude(**filter_fields)
 
     def throttled(self, request, wait):
         throttle_handler(wait)
