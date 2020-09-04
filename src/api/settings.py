@@ -138,6 +138,8 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework_csv.renderers.CSVRenderer",
+        "drf_renderer_xlsx.renderers.XLSXRenderer",
+        "rest_framework_xml.renderers.XMLRenderer",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
