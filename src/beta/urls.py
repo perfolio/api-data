@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import api
 
 urlpatterns = (
@@ -21,4 +21,5 @@ urlpatterns = (
         "6factor/<str:factor>/<str:region>/<str:currency>/<str:interval>",
         api.SixFactorView.as_view(),
     ),
+    re_path(r"^.*$", api.InvalidUrlPath.as_view()),
 )

@@ -84,5 +84,5 @@ class SixFactorSerializer(DynamicFieldsModelSerializer):
             "hml",
             "rmw",
             "cma",
-            "MOM",
+            "mom",
         )

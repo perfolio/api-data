@@ -2,7 +2,7 @@ import pandas as pd
 from get_data.config.general import currencies_fxrates
 from get_data.fetch import Fetcher as fe
 from get_data.convert import FactorConverter
-from v1 import models
+from beta import models
 from get_data.config.french import regions
 
 pd.options.mode.chained_assignment = None

@@ -8,14 +8,14 @@ factors = ["mktrf", "smb", "hml", "mom", "rmw", "cma"]
 
 # Supported regions for factos
 regions = [
-    "US",
-    "Developed",
-    "Developed_ex_US",
-    "Europe",
-    "Japan",
-    "Asia_Pacific_ex_Japan",
-    "North_America",
-    "Emerging",
+    "usa",
+    "developed",
+    "developed_ex_us",
+    "europe",
+    "japan",
+    "asia_pacific_ex_japan",
+    "north_america",
+    "emerging",
 ]
 
 # Supported currencies for fx rates
