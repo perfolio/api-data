@@ -1,9 +1,8 @@
-from rest_framework import generics, permissions
+from rest_framework import permissions
 from rest_framework.exceptions import ValidationError, Throttled
 from rest_framework.authentication import TokenAuthentication
 from typing import Dict, Any, Optional
 from django.db.models import Model
-from . import models, serializers
 import re
 
 from get_data.config.general import (
