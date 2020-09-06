@@ -3,9 +3,9 @@
         width="100%"
         src="https://raw.githubusercontent.com/perfolio/factor-returns/master/public/perfolio_logo.png">
     </img>
-    <div style="margin-top: 40px">
+    <div style="margin-top: 10%">
         <a
-            href="https://github.com/perfolio/web/blob/master/LICENSE">
+            href="https://github.com/perfolio/factor-returns/blob/master/LICENSE">
             <img
                 src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square">
             </img>
