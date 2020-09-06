@@ -36,6 +36,8 @@ jobs:
         # Show pycodestyle warnings but exit with zero anyway.
         flake8 . --count --exit-zero --statistics --max-line-length=127
     - name: Run unit tests
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
       run: |
         coverage run --branch --source='src/' src/manage.py test src/
         # Fail under 50%.
