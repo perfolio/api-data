@@ -22,9 +22,11 @@
 # Perfolio data API
 This is the API of Perfolio's data platform. It currently offers the following data:
 
-- Factor returns from Kenneth French's data library with the possibility currency conversion.
+- Factor returns from Kenneth French's data library with the possibility of currency conversion.
 - Risk-free rates for USD and EUR.
 - Exchange Rates (more than 15 currencies against USD).
+
+and soon even more!
 
 ## Contributing
 If you consider contributing to this Open Source project, please keep [these guidelines](https://github.com/perfolio/data-api/blob/master/.github/CONTRIBUTING.md) in mind.
