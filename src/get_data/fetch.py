@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import pandas as pd
 from typing import List, Tuple
+from get_data.config.boe import currency_identifier_map
+from get_data.config.ecb import rf_identifier_map
 
 
 class Fetcher:
@@ -16,14 +18,16 @@ class Fetcher:
     """
 
     @staticmethod
-    def french_factors(zip_filename: str, csv_filename: str, freq: str) -> pd.DataFrame:
+    def french_factors(
+        zip_filename: str, csv_filename: str, interval: str
+    ) -> pd.DataFrame:
         """
         Get factor data from Kenneth French's data library and clean it up.
 
         Args:
             zip_filename: A string with the zip file name.
             csv_filename: A string with the CSV file name.
-            freq: The frequency of factor data. Daily, monthly or annually.
+            interval: The interval of factor data. Daily, monthly or annual.
 
         Returns:
             A pandas dataframe with the factor returns in US dollar.
@@ -44,9 +48,9 @@ class Fetcher:
         tuple_list: List[Tuple[float]] = []
 
         # Choose length of date interval strings
-        if freq == "D":
+        if interval == "daily":
             date_length = 8
-        elif freq == "M":
+        elif interval == "monthly":
             date_length = 6
         else:
             date_length = 4
@@ -57,11 +61,11 @@ class Fetcher:
             for row in reader:
                 # Look for rows with the data wanted
                 if row and re.match(r"\s*\d{" + str(date_length) + r"}\s*\b", row[0]):
-                    if freq == "D":
+                    if interval == "daily":
                         row[0] = datetime.datetime.strptime(
                             row[0].strip(), "%Y%m%d"
                         ).strftime("%Y-%m-%d")
-                    elif freq == "M":
+                    elif interval == "monthly":
                         row[0] = datetime.datetime.strptime(
                             row[0].strip(), "%Y%m"
                         ).strftime("%Y-%m")
@@ -75,17 +79,17 @@ class Fetcher:
                     tuple_list.append(tuple(row))
 
         if re.search(r".*_5_.*", zip_filename):
-            column_names = ["interval", "MktRF", "SMB", "HML", "RMW", "CMA", "RF"]
+            column_names = ["period", "mktrf", "smb", "hml", "rmw", "cma", "rf"]
         elif re.search(r".*Momentum.*", zip_filename) or re.search(
             r".*MOM.*", zip_filename
         ):
-            column_names = ["interval", "MOM"]
+            column_names = ["period", "mom"]
         else:
-            column_names = ["interval", "MktRF", "SMB", "HML", "RF"]
+            column_names = ["period", "mktrf", "smb", "hml", "rf"]
 
-        df = pd.DataFrame(tuple_list, columns=column_names).set_index("interval")
+        df = pd.DataFrame(tuple_list, columns=column_names).set_index("period")
 
-        if freq == "D":
+        if interval == "daily":
             # Get date vector without missing dates
             full_datevector = [
                 date.strftime("%Y-%m-%d")
@@ -96,29 +100,25 @@ class Fetcher:
         return df
 
     @staticmethod
-    def ecb_riskfreerates(freq: str) -> pd.DataFrame:
+    def ecb_riskfreerates(interval: str) -> pd.DataFrame:
         """
-        Get riskfree rates from ECB (Daily rates: EONIA, monthly or annually rates: EURIBOR 1M)
+        Get riskfree rates from ECB (Daily rates: EONIA, monthly or annual rates: EURIBOR 1M)
 
         Args:
-            freq: The frequency of risk free rates. Daily, monthly or annually.
+            interval: The interval of risk free rates. Daily, monthly or annual.
 
         Returns:
             A pandas dataframe with the risk free rates in EUR.
 
         Raises:
-            ValueError: If frequency given is not supported.
+            ValueError: If interval given is not supported.
             ConnectionError: If ECB API endpoint returns bad answer.
         """
 
-        if freq == "D":
-            identifier = "EON/D.EONIA_TO.RATE"
-        elif freq == "M":
-            identifier = "FM/M.U2.EUR.RT.MM.EURIBOR1MD_.HSTA"
-        elif freq == "A":
-            identifier = "FM/M.U2.EUR.RT.MM.EURIBOR1MD_.HSTA"
-        else:
-            raise ValueError("Frequency not supported.")
+        try:
+            identifier = rf_identifier_map[interval]
+        except KeyError:
+            raise ValueError("Interval not supported.")
 
         request_string = f"https://sdw-wsrest.ecb.europa.eu/service/data/{identifier}"
         r = requests.get(request_string)
@@ -138,19 +138,19 @@ class Fetcher:
 
             tuple_list: List[Tuple[float]] = []
 
-            if freq == "D":
+            if interval == "daily":
                 for obs in root_list:
                     date = obs[0].attrib["value"]
                     value = np.float64(
                         round(float(obs[1].attrib["value"]) / 100 / 360, 8)
                     )
                     tuple_list.append((date, value))
-            elif freq == "M":
+            elif interval == "monthly":
                 for obs in root_list:
                     date = obs[0].attrib["value"]
                     value = np.float64(round(float(obs[1].attrib["value"]) / 100 / 12, 8))
                     tuple_list.append((date, value))
-            elif freq == "A":
+            elif interval == "annual":
                 for obs in root_list:
                     # Look for december rates
                     if re.match(r"\s*\d{4}-12\s*", obs[0].attrib["value"]):
@@ -158,9 +158,9 @@ class Fetcher:
                         value = np.float64(round(float(obs[1].attrib["value"]) / 100, 8))
                         tuple_list.append((date, value))
 
-        df = pd.DataFrame(tuple_list, columns=["interval", "RF"]).set_index("interval")
+        df = pd.DataFrame(tuple_list, columns=["period", "rf"]).set_index("period")
 
-        if freq == "D":
+        if interval == "daily":
             # Get date vector without missing dates
             full_datevector = [
                 date.strftime("%Y-%m-%d")
@@ -171,12 +171,12 @@ class Fetcher:
         return df
 
     @staticmethod
-    def boe_fxrates(freq: str) -> pd.DataFrame:
+    def boe_fxrates(interval: str) -> pd.DataFrame:
         """
         Get 16.00 London time exchange rates against USD from Bank of England API.
 
         Args:
-            freq: The frequency of exchange rates. Daily, monthly or annually.
+            interval: The interval of exchange rates. Daily, monthly or annual.
 
         Returns:
             A Pandas dataframe with the exchange rates.
@@ -185,27 +185,6 @@ class Fetcher:
             ConnectionError: If Bank of England API returns bad answer.
         """
 
-        currency_identifier_map = {
-            "EUR": {"A": "XUALERD", "M": "XUMLERD", "D": "XUDLERD"},
-            "JPY": {"A": "XUALJYD", "M": "XUMLJYD", "D": "XUDLJYD"},
-            "GBP": {"A": "XUALGBD", "M": "XUMLGBD", "D": "XUDLGBD"},
-            "CHF": {"A": "XUALSFD", "M": "XUMLSFD", "D": "XUDLSFD"},
-            "RUB": {"A": "XUALBK69", "M": "XUMLBK69", "D": "XUDLBK69"},
-            "AUD": {"A": "XUALADD", "M": "XUMLADD", "D": "XUDLADD"},
-            "BRL": {"A": "XUALB8KL", "M": "XUMLB8KL", "D": "XUDLB8KL"},
-            "CAD": {"A": "XUALCDD", "M": "XUMLCDD", "D": "XUDLCDD"},
-            "CNY": {"A": "XUALBK73", "M": "XUMLBK73", "D": "XUDLBK73"},
-            "INR": {"A": "XUALBK64", "M": "XUMLBK64", "D": "XUDLBK64"},
-            "DKK": {"A": "XUALDKD", "M": "XUMLDKD", "D": "XUDLDKD"},
-            "NZD": {"A": "XUALNDD", "M": "XUMLNDD", "D": "XUDLNDD"},
-            "NOK": {"A": "XUALNKD", "M": "XUMLNKD", "D": "XUDLNKD"},
-            "SEK": {"A": "XUALSKD", "M": "XUMLSKD", "D": "XUDLSKD"},
-            "PLN": {"A": "XUALBK49", "M": "XUMLBK49", "D": "XUDLBK49"},
-            "ILS": {"A": "XUALBK65", "M": "XUMLBK65", "D": "XUDLBK65"},
-            "KRW": {"A": "XUALBK74", "M": "XUMLBK74", "D": "XUDLBK74"},
-            "TRY": {"A": "XUALBK75", "M": "XUMLBK75", "D": "XUDLBK75"},
-        }
-
         df = pd.DataFrame()
 
         for key in currency_identifier_map:
@@ -213,7 +192,7 @@ class Fetcher:
             params = {
                 "Datefrom": "01/Jan/1963",
                 "Dateto": "now",
-                "SeriesCodes": currency_identifier_map[key][freq],
+                "SeriesCodes": currency_identifier_map[key][interval],
             }
 
             r = requests.get(request_string, params=params)
@@ -234,34 +213,30 @@ class Fetcher:
 
             tuple_list: List[Tuple[float]] = []
 
-            if freq == "D":
+            if interval == "daily":
                 for cube in root_list:
                     date = cube.attrib["TIME"]
                     value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
                     tuple_list.append((date, value))
-            elif freq == "M":
+            elif interval == "monthly":
                 for cube in root_list:
                     date = cube.attrib["TIME"][:-3]
                     value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
                     tuple_list.append((date, value))
-            elif freq == "A":
+            elif interval == "annual":
                 for cube in root_list:
                     date = cube.attrib["TIME"][:-6]
                     value = np.float64(round(1 / float(cube.attrib["OBS_VALUE"]), 8))
                     tuple_list.append((date, value))
 
             if df.empty:
-                df = pd.DataFrame(tuple_list, columns=["interval", key]).set_index(
-                    "interval"
-                )
+                df = pd.DataFrame(tuple_list, columns=["period", key]).set_index("period")
             else:
                 df = df.join(
-                    pd.DataFrame(tuple_list, columns=["interval", key]).set_index(
-                        "interval"
-                    )
+                    pd.DataFrame(tuple_list, columns=["period", key]).set_index("period")
                 )
 
-        if freq == "D":
+        if interval == "daily":
             # Get date vector without missing dates
             full_datevector = [
                 date.strftime("%Y-%m-%d")
