@@ -37,13 +37,22 @@ def get_params(
     param_dict["dropna"] = obj.request.GET.get("dropna")
 
     # Parsing currency
-    # If rf is requested check for currencies_rf else check for currencies_fxrates
-    if (rf and param_dict["currency"] not in currencies_rf) or (
-        not rf and param_dict["currency"] not in currencies_fxrates
+    # If rf is requested check for currencies_rf else check for currencies_fxrates (for factors +USD)
+    if (
+        (rf and param_dict["currency"] not in currencies_rf)
+        or (not rf and not factor and param_dict["currency"] not in currencies_fxrates)
+        or (
+            not rf
+            and factor
+            and param_dict["currency"] not in currencies_fxrates + ["USD"]
+        )
     ):
         raise ValidationError(
             {"Error": "Currency not supported (yet). See docs for currencies supported."}
         )
+    if not rf and not factor and param_dict["currency"] == "USD":
+        raise ValidationError({"Error": "The USD/USD fxrate is always 1."})
+
     # Parsing interval
     if param_dict["interval"] == "d":
         param_dict["interval"] = "daily"
