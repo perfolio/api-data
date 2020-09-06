@@ -70,13 +70,14 @@ class RiskFreeRate(models.Model):
                     period=row.name, interval=row["interval"], currency=row["currency"]
                 )
                 if not instance == new_instance:
+                    new_instance.id = instance.id
                     update_list.append(new_instance)
             except ObjectDoesNotExist:
                 create_list.append(new_instance)
 
         # Only update database if there is something to update
         if update_list:
-            RiskFreeRate.objects.bulk_update(update_list, df.columns.values.to_list())
+            RiskFreeRate.objects.bulk_update(update_list, list(df))
         if create_list:
             RiskFreeRate.objects.bulk_create(create_list)
 
@@ -180,15 +181,14 @@ class ExchangeRateUSDPerX(models.Model):
                     period=row.name, interval=row["interval"]
                 )
                 if not instance == new_instance:
+                    new_instance.id = instance.id
                     update_list.append(new_instance)
             except ObjectDoesNotExist:
                 create_list.append(new_instance)
 
         # Only update database if there is something to update
         if update_list:
-            ExchangeRateUSDPerX.objects.bulk_update(
-                update_list, df.columns.values.to_list()
-            )
+            ExchangeRateUSDPerX.objects.bulk_update(update_list, list(df))
         if create_list:
             ExchangeRateUSDPerX.objects.bulk_create(create_list)
 
@@ -279,13 +279,14 @@ class ThreeFourFactor(models.Model):
                     region=row["region"],
                 )
                 if not instance == new_instance:
+                    new_instance.id = instance.id
                     update_list.append(new_instance)
             except ObjectDoesNotExist:
                 create_list.append(new_instance)
 
         # Only update database if there is something to update
         if update_list:
-            ThreeFourFactor.objects.bulk_update(update_list, df.columns.values.to_list())
+            ThreeFourFactor.objects.bulk_update(update_list, list(df))
         if create_list:
             ThreeFourFactor.objects.bulk_create(create_list)
 
@@ -380,13 +381,14 @@ class FiveSixFactor(models.Model):
                     region=row["region"],
                 )
                 if not instance == new_instance:
+                    new_instance.id = instance.id
                     update_list.append(new_instance)
             except ObjectDoesNotExist:
                 create_list.append(new_instance)
 
         # Only update database if there is something to update
         if update_list:
-            FiveSixFactor.objects.bulk_update(update_list, df.columns.values.to_list())
+            FiveSixFactor.objects.bulk_update(update_list, list(df))
         if create_list:
             FiveSixFactor.objects.bulk_create(create_list)
 
