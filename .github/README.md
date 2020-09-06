@@ -3,7 +3,7 @@
         width="100%"
         src="https://raw.githubusercontent.com/perfolio/factor-returns/master/public/perfolio_logo.png">
     </img>
-    <div style="margin-top: 20px">
+    <div style="margin-top: 40px">
         <a
             href="https://github.com/perfolio/web/blob/master/LICENSE">
             <img
