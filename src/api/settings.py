@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "beta",
     "rest_framework",
     "rest_framework.authtoken",
+    "coverage",
 ]
 
 MIDDLEWARE = [
