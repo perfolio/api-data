@@ -13,8 +13,8 @@
         <a href="https://github.com/perfolio/data-api/actions">
             <img src="https://github.com/perfolio/data-api/workflows/CI/badge.svg?branch=master" />
         </a>
-        <a href="https://codecov.io/gh/perfolio/factor-returns">
-            <img src="https://codecov.io/gh/perfolio/factor-returns/branch/master/graph/badge.svg" />
+        <a href="https://codecov.io/gh/perfolio/data-api">
+            <img src="https://codecov.io/gh/perfolio/data-api/branch/master/graph/badge.svg" />
         </a>
     </div>
 </div>
