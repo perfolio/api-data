@@ -1,4 +1,4 @@
-# Contributing to perfolio/factor-returns
+# Contributing to perfolio/data-api
 
 Thanks for considering contributing to a Perfolio Open Source project! All kind of contributions are welcome, but please keep the following guidelines in mind.
 
@@ -22,7 +22,7 @@ All branches must be categorized and prefixed in the following way:
 
 1.  Clone the repository.
 
-        git clone https://github.com/perfolio/factor-returns.git
+        git clone https://github.com/perfolio/data-api.git
 
 2. Setup venv (optional but recommended).
 
@@ -50,7 +50,7 @@ All branches must be categorized and prefixed in the following way:
 
 We appreciate TDD and expect a sufficient code coverage.
 
-Please run your tests with `python src/manage.py test`.
+Please run your tests with `coverage run --branch --source='src/' src/manage.py test src/ && coverage report --fail-under=50`.
 
 ### Documentation
 
