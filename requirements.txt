@@ -19,7 +19,7 @@ drf-renderer-xlsx==0.3.7
 et-xmlfile==1.0.1
 filelock==3.0.12
 flake8==3.8.3
-identify==1.4.25
+identify==1.5.0
 idna==2.10
 importlib-metadata==1.7.0
 importlib-resources==3.0.0
