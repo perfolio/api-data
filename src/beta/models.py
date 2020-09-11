@@ -39,7 +39,11 @@ class RiskFreeRate(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -152,7 +156,11 @@ class ExchangeRateUSDPerX(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -241,7 +249,11 @@ class ThreeFourFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -343,7 +355,11 @@ class FiveSixFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod

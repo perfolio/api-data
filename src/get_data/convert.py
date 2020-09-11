@@ -9,7 +9,9 @@ class FactorConverter:
     """
 
     def __init__(
-        self, df_fxrates: pd.DataFrame, dict_rf: Dict[str, pd.DataFrame],
+        self,
+        df_fxrates: pd.DataFrame,
+        dict_rf: Dict[str, pd.DataFrame],
     ) -> None:
         """
         Create an instance of class and set all fx rate returns and riskfree rates for currency conversion.

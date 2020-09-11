@@ -79,7 +79,8 @@ dict_rf_m = {"USD": df_rf_usd_m}
 dict_rf_a = {"USD": df_rf_usd_a}
 
 df_5n6factor_usa_usd_d = fe.french_factors(
-    "F-F_Research_Data_5_Factors_2x3_daily_CSV", "daily",
+    "F-F_Research_Data_5_Factors_2x3_daily_CSV",
+    "daily",
 )
 
 df_5n6factor_usa_usd_d.drop(["rf"], axis=1, inplace=True)
@@ -88,7 +89,8 @@ df_5n6factor_usa_usd_d["mom"] = df_mom_usa_usd_d["mom"]
 models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_d, "daily", "USD", "usa")
 
 df_5n6factor_usa_usd_m = fe.french_factors(
-    "F-F_Research_Data_5_Factors_2x3_CSV", "monthly",
+    "F-F_Research_Data_5_Factors_2x3_CSV",
+    "monthly",
 )
 
 df_5n6factor_usa_usd_m.drop(["rf"], axis=1, inplace=True)
@@ -97,7 +99,8 @@ df_5n6factor_usa_usd_m["mom"] = df_mom_usa_usd_m["mom"]
 models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_m, "monthly", "USD", "usa")
 
 df_5n6factor_usa_usd_a = fe.french_factors(
-    "F-F_Research_Data_5_Factors_2x3_CSV", "annual",
+    "F-F_Research_Data_5_Factors_2x3_CSV",
+    "annual",
 )
 
 df_5n6factor_usa_usd_a.drop(["rf"], axis=1, inplace=True)
