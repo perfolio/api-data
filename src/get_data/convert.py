@@ -1,5 +1,6 @@
-import pandas as pd
 from typing import Dict
+
+import pandas as pd
 
 
 class FactorConverter:
@@ -8,7 +9,9 @@ class FactorConverter:
     """
 
     def __init__(
-        self, df_fxrates: pd.DataFrame, dict_rf: Dict[str, pd.DataFrame],
+        self,
+        df_fxrates: pd.DataFrame,
+        dict_rf: Dict[str, pd.DataFrame],
     ) -> None:
         """
         Create an instance of class and set all fx rate returns and riskfree rates for currency conversion.
@@ -78,7 +81,6 @@ class FactorConverter:
         Returns:
             A Pandas dataframe with the currency-converted factor returns.
         """
-
         df_factor_target = pd.DataFrame()
         df_factor_target["mktrf"] = self.mktrf(df_factor_source["mktrf"], currency)
         df_factor_target["smb"] = self.longshortfactor(df_factor_source["smb"], currency)

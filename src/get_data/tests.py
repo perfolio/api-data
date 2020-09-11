@@ -1,5 +1,5 @@
-from django.test import TestCase
 import pandas as pd
+from django.test import TestCase
 
 
 class FetchTests(TestCase):

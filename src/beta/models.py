@@ -1,9 +1,10 @@
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import CharField, DateTimeField, DecimalField
-from django.core.exceptions import ObjectDoesNotExist
-from typing import List, Dict
 
 
 class RiskFreeRate(models.Model):
@@ -38,7 +39,11 @@ class RiskFreeRate(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -151,7 +156,11 @@ class ExchangeRateUSDPerX(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -240,7 +249,11 @@ class ThreeFourFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod
@@ -342,7 +355,11 @@ class FiveSixFactor(models.Model):
     @staticmethod
     def __compare(x, y):
         return np.isclose(
-            np.float64(x), np.float64(y), rtol=1e-05, atol=1e-08, equal_nan=True,
+            np.float64(x),
+            np.float64(y),
+            rtol=1e-05,
+            atol=1e-08,
+            equal_nan=True,
         )
 
     @staticmethod

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,12 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 else:
-    ALLOWED_HOSTS = ["data.perfol.io", "localhost", "127.0.0.1", "[::1]"]
+    ALLOWED_HOSTS = ["api.perfol.io", "localhost", "127.0.0.1", "[::1]"]
 
 
 # Application definition
@@ -80,7 +81,7 @@ WSGI_APPLICATION = "api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if DEBUG:
+if DEBUG or "test" in sys.argv:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -91,11 +92,11 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": os.environ.get("DATABASE_NAME"),
-            "USER": os.environ.get("DATABASE_USER"),
-            "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-            "HOST": os.environ.get("DATABASE_HOST"),
-            "PORT": "",
+            "NAME": os.environ.get("DATABASE_NAME", ""),
+            "USER": os.environ.get("DATABASE_USER", ""),
+            "PASSWORD": os.environ.get("DATABASE_PASSWORD", ""),
+            "HOST": os.environ.get("DATABASE_HOST", ""),
+            "PORT": os.environ.get("DATABASE_PORT", ""),
         }
     }
 
@@ -104,10 +105,18 @@ else:
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -128,7 +137,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = "/d/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 
 REST_FRAMEWORK = {

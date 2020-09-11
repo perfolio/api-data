@@ -1,16 +1,17 @@
-from rest_framework import permissions
-from rest_framework.exceptions import ValidationError, Throttled
-from rest_framework.authentication import TokenAuthentication
-from typing import Dict, Any, Optional
-from django.db.models import Model
 import re
+from typing import Any, Dict, Optional
+
+from django.db.models import Model
+from rest_framework import permissions
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.exceptions import Throttled, ValidationError
 
 from get_data.config.general import (
     currencies_fxrates,
     currencies_rf,
-    regions,
-    intervals,
     factors,
+    intervals,
+    regions,
 )
 
 # Helpers #
@@ -27,8 +28,7 @@ def throttle_handler(wait):
 def get_params(
     obj: Any, rf: bool = False, factor: Optional[int] = None
 ) -> Dict[str, str]:
-    """
-    """
+    """"""
     param_dict = {}
     param_dict["currency"] = obj.kwargs["currency"].upper()
     param_dict["interval"] = obj.kwargs["interval"].lower()
@@ -83,8 +83,7 @@ def get_params(
 
 
 def range_filter(from_: str, to_: str, interval: str, model: Model) -> Any:
-    """
-    """
+    """"""
     date_patterns = {
         "daily": "^[1,2][9,0,1][0-9][0-9]-[0,1][0-9]-[0-3][0-9]$",
         "monthly": "^[1,2][9,0,1][0-9][0-9]-[0,1][0-9](?:-[0-3][0-9])?$",
