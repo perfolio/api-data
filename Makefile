@@ -14,3 +14,6 @@ setup:
 
 get_poetry:
 	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
+
+lint:
+	poetry run flake8 . --exit-zero --max-line-length=90
