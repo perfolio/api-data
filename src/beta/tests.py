@@ -32,13 +32,7 @@ class APIRouteTestsAnon(APITestCase):
         api.ExchangeRateUSDPerXView.throttle_classes = ()
 
         # fxrate
-        url = reverse(
-            "fxrate",
-            kwargs={
-                "currency": "ils",
-                "interval": "annual",
-            },
-        )
+        url = reverse("fxrate", kwargs={"currency": "ils", "interval": "annual",},)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -61,13 +55,7 @@ class APIRouteTestsAnon(APITestCase):
         """
         api.InvalidUrlPath.throttle_classes = ()
 
-        url = reverse(
-            "fxrate",
-            kwargs={
-                "currency": "nzd",
-                "interval": "daily",
-            },
-        )
+        url = reverse("fxrate", kwargs={"currency": "nzd", "interval": "daily",},)
         response = self.client.get(url[:9])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -79,10 +67,7 @@ class APIRouteTestsAnon(APITestCase):
         rate_limit = int(REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["anon"].rsplit("/")[0])  # type: ignore
 
         for i in range(0, rate_limit):
-            url = reverse(
-                "rf",
-                kwargs={"currency": "EUR", "interval": "m"},
-            )
+            url = reverse("rf", kwargs={"currency": "EUR", "interval": "m"},)
             response = self.client.get(url)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -124,10 +109,7 @@ class APIRouteTestsUser(APITestCase):
 
         for currency in test_currencies:
             for interval in test_intervals:
-                url = reverse(
-                    "rf",
-                    kwargs={"currency": currency, "interval": interval},
-                )
+                url = reverse("rf", kwargs={"currency": currency, "interval": interval},)
                 response = self.client.get(url, {"token": self.token})
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -206,12 +188,7 @@ class APIRouteTestsUser(APITestCase):
                     },
                 )
                 response = self.client.get(
-                    url,
-                    {
-                        "token": self.token,
-                        "from": "1999-12",
-                        "to": "2005-08",
-                    },
+                    url, {"token": self.token, "from": "1999-12", "to": "2005-08",},
                 )
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -233,13 +210,7 @@ class APIRouteTestsUser(APITestCase):
                 "interval": test_interval,
             },
         )
-        response = self.client.get(
-            url,
-            {
-                "token": self.token,
-                "dropna": "False",
-            },
-        )
+        response = self.client.get(url, {"token": self.token, "dropna": "False",},)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_routes_6factor(self):
@@ -260,13 +231,7 @@ class APIRouteTestsUser(APITestCase):
                 "interval": test_interval,
             },
         )
-        response = self.client.get(
-            url,
-            {
-                "token": self.token,
-                "dropna": "true",
-            },
-        )
+        response = self.client.get(url, {"token": self.token, "dropna": "true",},)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -377,11 +342,7 @@ class ModelFieldsTests(APITestCase):
             "mom": 23.4545,
         }
         self.fivesixfactor = models.FiveSixFactor(
-            period="2015",
-            interval="annual",
-            region="japan",
-            currency="JPY",
-            **factors,
+            period="2015", interval="annual", region="japan", currency="JPY", **factors,
         )
         self.fivesixfactor.save()
 
