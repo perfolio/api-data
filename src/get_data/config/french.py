@@ -2,7 +2,9 @@
 Config file for Kenneth French's data library links
 """
 
-regions = [
+from typing import Any, Dict, List
+
+regions: List[Dict[str, Any]] = [
     {
         "name": "developed",
         "freq": [
