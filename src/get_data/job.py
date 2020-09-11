@@ -1,9 +1,10 @@
 import pandas as pd
-from get_data.config.general import currencies_fxrates
-from get_data.fetch import Fetcher as fe
-from get_data.convert import FactorConverter
+
 from beta import models
 from get_data.config.french import regions
+from get_data.config.general import currencies_fxrates
+from get_data.convert import FactorConverter
+from get_data.fetch import Fetcher as fe
 
 pd.options.mode.chained_assignment = None
 
@@ -39,12 +40,8 @@ models.ExchangeRateUSDPerX.from_dataframe(df_fxrates_a, "annual")
 
 print("Parsing factor returns for USA...")
 
-df_3n4factor_usa_usd_d = fe.french_factors(
-    "F-F_Research_Data_Factors_daily_CSV", "F-F_Research_Data_Factors_daily.CSV", "daily"
-)
-df_mom_usa_usd_d = fe.french_factors(
-    "F-F_Momentum_Factor_daily_CSV", "F-F_Momentum_Factor_daily.CSV", "daily"
-)
+df_3n4factor_usa_usd_d = fe.french_factors("F-F_Research_Data_Factors_daily_CSV", "daily")
+df_mom_usa_usd_d = fe.french_factors("F-F_Momentum_Factor_daily_CSV", "daily")
 
 df_rf_usd_d = df_3n4factor_usa_usd_d[["rf"]]
 df_3n4factor_usa_usd_d.drop(["rf"], axis=1, inplace=True)
@@ -53,12 +50,8 @@ df_3n4factor_usa_usd_d["mom"] = df_mom_usa_usd_d["mom"]
 models.ThreeFourFactor.from_dataframe(df_3n4factor_usa_usd_d, "daily", "USD", "usa")
 
 
-df_3n4factor_usa_usd_m = fe.french_factors(
-    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", "monthly"
-)
-df_mom_usa_usd_m = fe.french_factors(
-    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", "monthly"
-)
+df_3n4factor_usa_usd_m = fe.french_factors("F-F_Research_Data_Factors_CSV", "monthly")
+df_mom_usa_usd_m = fe.french_factors("F-F_Momentum_Factor_CSV", "monthly")
 
 df_rf_usd_m = df_3n4factor_usa_usd_m[["rf"]]
 df_3n4factor_usa_usd_m.drop(["rf"], axis=1, inplace=True)
@@ -66,12 +59,8 @@ df_3n4factor_usa_usd_m["mom"] = df_mom_usa_usd_m["mom"]
 
 models.ThreeFourFactor.from_dataframe(df_3n4factor_usa_usd_m, "monthly", "USD", "usa")
 
-df_3n4factor_usa_usd_a = fe.french_factors(
-    "F-F_Research_Data_Factors_CSV", "F-F_Research_Data_Factors.CSV", "annual"
-)
-df_mom_usa_usd_a = fe.french_factors(
-    "F-F_Momentum_Factor_CSV", "F-F_Momentum_Factor.CSV", "annual"
-)
+df_3n4factor_usa_usd_a = fe.french_factors("F-F_Research_Data_Factors_CSV", "annual")
+df_mom_usa_usd_a = fe.french_factors("F-F_Momentum_Factor_CSV", "annual")
 
 df_rf_usd_a = df_3n4factor_usa_usd_a[["rf"]]
 df_3n4factor_usa_usd_a.drop(["rf"], axis=1, inplace=True)
@@ -91,7 +80,6 @@ dict_rf_a = {"USD": df_rf_usd_a}
 
 df_5n6factor_usa_usd_d = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_daily_CSV",
-    "F-F_Research_Data_5_Factors_2x3_daily.CSV",
     "daily",
 )
 
@@ -102,7 +90,6 @@ models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_d, "daily", "USD", "usa
 
 df_5n6factor_usa_usd_m = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_CSV",
-    "F-F_Research_Data_5_Factors_2x3.CSV",
     "monthly",
 )
 
@@ -113,7 +100,6 @@ models.FiveSixFactor.from_dataframe(df_5n6factor_usa_usd_m, "monthly", "USD", "u
 
 df_5n6factor_usa_usd_a = fe.french_factors(
     "F-F_Research_Data_5_Factors_2x3_CSV",
-    "F-F_Research_Data_5_Factors_2x3.CSV",
     "annual",
 )
 
@@ -161,19 +147,15 @@ for region in regions:
 
     for f in region["freq"]:
 
-        df_mom_usd = fe.french_factors(f["mom"], f["mom"][:-4] + ".csv", f["interval"])
+        df_mom_usd = fe.french_factors(f["mom"], f["interval"])
 
         if three_factor:
-            df_3n4factors_usd = fe.french_factors(
-                f["3factors"], f["3factors"][:-4] + ".csv", f["interval"]
-            )
+            df_3n4factors_usd = fe.french_factors(f["3factors"], f["interval"])
 
             df_3n4factors_usd.drop(["rf"], axis=1, inplace=True)
             df_3n4factors_usd["mom"] = df_mom_usd["mom"]
 
-        df_5n6factors_usd = fe.french_factors(
-            f["5factors"], f["5factors"][:-4] + ".csv", f["interval"]
-        )
+        df_5n6factors_usd = fe.french_factors(f["5factors"], f["interval"])
 
         df_5n6factors_usd.drop(["rf"], axis=1, inplace=True)
         df_5n6factors_usd["mom"] = df_mom_usd["mom"]

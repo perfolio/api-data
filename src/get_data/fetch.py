@@ -1,13 +1,15 @@
-import io
 import csv
-import zipfile
 import datetime
+import io
 import re
-import requests
 import xml.etree.ElementTree as ET
+import zipfile
+from typing import Any, List, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import List, Tuple
+import requests
+
 from get_data.config.boe import currency_identifier_map
 from get_data.config.ecb import rf_identifier_map
 
@@ -18,15 +20,12 @@ class Fetcher:
     """
 
     @staticmethod
-    def french_factors(
-        zip_filename: str, csv_filename: str, interval: str
-    ) -> pd.DataFrame:
+    def french_factors(identifier: str, interval: str) -> pd.DataFrame:
         """
         Get factor data from Kenneth French's data library and clean it up.
 
         Args:
-            zip_filename: A string with the zip file name.
-            csv_filename: A string with the CSV file name.
+            identifier: A string with the zip file name.
             interval: The interval of factor data. Daily, monthly or annual.
 
         Returns:
@@ -34,9 +33,10 @@ class Fetcher:
 
         Raises:
             ConnectionError: If Kenneth French's data library returns bad answer.
+            NotImplementedError: If multiple files in zip file detected. This should not happen and needs to be handled manually.
         """
 
-        request_string = f"https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/{zip_filename}.zip"
+        request_string = f"https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/{identifier}.zip"
 
         r = requests.get(request_string)
 
@@ -44,8 +44,16 @@ class Fetcher:
             raise ConnectionError("Error: Could not get " + request_string)
 
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        data = io.TextIOWrapper(z.open(csv_filename, "r"))
-        tuple_list: List[Tuple[float]] = []
+
+        if len(z.namelist()) != 1:
+            raise NotImplementedError(
+                "Multiple files in zip file detected, don't know which to choose."
+            )
+
+        # Type checking ignored due to https://github.com/python/typeshed/issues/4349
+        # May be removed after new version of mypy is released
+        data = io.TextIOWrapper(z.open(z.namelist()[0], "r"))  # type: ignore
+        tuple_list: List[Tuple[Any, ...]] = []
 
         # Choose length of date interval strings
         if interval == "daily":
@@ -78,11 +86,9 @@ class Fetcher:
                     ]
                     tuple_list.append(tuple(row))
 
-        if re.search(r".*_5_.*", zip_filename):
+        if re.search(r".*_5_.*", identifier):
             column_names = ["period", "mktrf", "smb", "hml", "rmw", "cma", "rf"]
-        elif re.search(r".*Momentum.*", zip_filename) or re.search(
-            r".*MOM.*", zip_filename
-        ):
+        elif re.search(r".*Momentum.*", identifier) or re.search(r".*MOM.*", identifier):
             column_names = ["period", "mom"]
         else:
             column_names = ["period", "mktrf", "smb", "hml", "rf"]
@@ -136,7 +142,7 @@ class Fetcher:
             }
             root_list = root.findall("x:DataSet/y:Series/y:Obs", ns)
 
-            tuple_list: List[Tuple[float]] = []
+            tuple_list: List[Tuple[str, np.float64]] = []
 
             if interval == "daily":
                 for obs in root_list:
@@ -211,7 +217,7 @@ class Fetcher:
                 ns = {"x": "http://www.bankofengland.co.uk/boeapps/iadb/agg_series"}
                 root_list = root.findall("x:Cube/x:Cube[@TIME][@OBS_VALUE]", ns)
 
-            tuple_list: List[Tuple[float]] = []
+            tuple_list: List[Tuple[str, np.float64]] = []
 
             if interval == "daily":
                 for cube in root_list:
