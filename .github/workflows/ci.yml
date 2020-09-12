@@ -59,6 +59,7 @@ jobs:
 
     - name: Run unit tests
       run: |
+        ls -la .
         make test
 
     - name: Report coverage to codecov.io
