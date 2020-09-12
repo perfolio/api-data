@@ -52,8 +52,6 @@ jobs:
         poetry install
 
     - name: Run unit tests
-      env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
       run: |
         make test
     - name: Report to codecov
