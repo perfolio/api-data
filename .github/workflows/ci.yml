@@ -60,7 +60,7 @@ jobs:
     - name: Run unit tests
       run: |
         make test
-        ls -la .
+        poetry run coverage xml
 
     - name: Report coverage to codecov.io
       uses: codecov/codecov-action@v1
