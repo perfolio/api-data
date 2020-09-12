@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from django.test import TestCase
 
+from get_data.convert import FactorConverter
 from get_data.fetch import Fetcher as fe
 
 
@@ -244,8 +245,8 @@ class FetchTests(TestCase):
         df_test_daily = fe.boe_fxrates("daily")
 
         # Calculate example fxrates
-        fxrate1 = round(1 / 0.7344, 8)
-        fxrate2 = round(1 / 0.7263, 8)
+        fxrate1 = 1.36165577
+        fxrate2 = 1.37684153
 
         df_target_daily = (
             pd.DataFrame(
@@ -289,3 +290,101 @@ class FetchTests(TestCase):
 
         # Compare test (only last three rows for simplicity) and target dataframes
         self.assertTrue(df_test_daily.iloc[-3:, :].equals(df_target_daily))
+
+
+class ConvertTests(TestCase):
+    """
+    Tests for the currency conversion of factor returns.
+    """
+
+    def test_factor_conversion(self):
+        """
+        It constructs a FactorConverter and converts factor returns from USD to EUR.
+        """
+        # Calculate example fxrates
+        fxrate1 = 1.36165577
+        fxrate2 = 1.37684153
+
+        df_fxrates = (
+            pd.DataFrame(
+                {
+                    "period": ["2013-11-29", "2013-11-30"],
+                    "EUR": [fxrate1, fxrate2],
+                    "JPY": [fxrate1, fxrate2],
+                    "GBP": [fxrate1, fxrate2],
+                    "CHF": [fxrate1, fxrate2],
+                    "RUB": [fxrate1, fxrate2],
+                    "AUD": [fxrate1, fxrate2],
+                    "BRL": [fxrate1, fxrate2],
+                    "CAD": [fxrate1, fxrate2],
+                    "CNY": [fxrate1, fxrate2],
+                    "INR": [fxrate1, fxrate2],
+                    "DKK": [fxrate1, fxrate2],
+                    "NZD": [fxrate1, fxrate2],
+                    "NOK": [fxrate1, fxrate2],
+                    "SEK": [fxrate1, fxrate2],
+                    "PLN": [fxrate1, fxrate2],
+                    "ILS": [fxrate1, fxrate2],
+                    "KRW": [fxrate1, fxrate2],
+                    "TRY": [fxrate1, fxrate2],
+                }
+            )
+            .set_index("period")
+            .astype("float64")
+        )
+
+        dict_rf = {
+            "EUR": pd.DataFrame(
+                {
+                    "period": ["2013-11-30"],
+                    "rf": [0.0003],
+                }
+            )
+            .set_index("period")
+            .astype("float64"),
+            "USD": pd.DataFrame(
+                {
+                    "period": ["2013-11-30"],
+                    "rf": [0.00047],
+                }
+            )
+            .set_index("period")
+            .astype("float64"),
+        }
+
+        df_factors = (
+            pd.DataFrame(
+                {
+                    "period": ["2013-11-30"],
+                    "mktrf": [0.0105],
+                    "smb": [-0.00238],
+                    "hml": [0.0001],
+                    "mom": [-0.0083],
+                    "rmw": [0.0034],
+                    "cma": [-0.0198],
+                }
+            )
+            .set_index("period")
+            .astype("float64")
+        )
+
+        df_factors_target = (
+            pd.DataFrame(
+                {
+                    "period": ["2013-11-30"],
+                    "mktrf": [-0.0005],
+                    "smb": [-0.0024],
+                    "hml": [0.0001],
+                    "mom": [-0.0082],
+                    "rmw": [0.0034],
+                    "cma": [-0.0196],
+                }
+            )
+            .set_index("period")
+            .astype("float64")
+        )
+
+        fc = FactorConverter(df_fxrates, dict_rf)
+        df_factors_test = fc.dataframe(df_factors, "EUR")
+
+        self.assertTrue(df_factors_test.equals(df_factors_target))
