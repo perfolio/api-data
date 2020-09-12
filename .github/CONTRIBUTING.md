@@ -23,6 +23,7 @@ All branches must be categorized and prefixed in the following way:
 1.  Clone the repository.
 
         git clone https://github.com/perfolio/data-api.git
+        cd data-api
 
 2. Setup venv (optional but recommended).
 
