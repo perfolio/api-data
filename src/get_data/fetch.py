@@ -2,7 +2,7 @@ import csv
 import datetime
 import io
 import re
-import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as ET
 import zipfile
 from typing import Any, List, Tuple
 
