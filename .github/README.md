@@ -1,11 +1,12 @@
 <div style="margin-bottom: 20px;" align="center">
-    <img
-        width="100%"
-        src="https://raw.githubusercontent.com/perfolio/data-api/master/public/perfolio_logo.png">
-    </img>
+    <a target="_blank" rel="noopener noreferrer" href="https://perfol.io">
+        <img
+            width="50%"
+            src="https://raw.githubusercontent.com/perfolio/data-api/master/public/perfolio_logo.png">
+        </img>
+    </a>
     <div style="margin-top: 10%">
-        <a
-            href="https://github.com/perfolio/data-api/blob/master/LICENSE">
+        <a href="https://github.com/perfolio/data-api/blob/master/LICENSE">
             <img
                 src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square">
             </img>
@@ -13,7 +14,7 @@
         <a href="https://github.com/perfolio/data-api/actions">
             <img src="https://github.com/perfolio/data-api/workflows/CI/badge.svg?branch=master" />
         </a>
-        <a href="https://codecov.io/gh/perfolio/data-api">
+        <a target="_blank" rel="noopener noreferrer" href="https://codecov.io/gh/perfolio/data-api">
             <img src="https://codecov.io/gh/perfolio/data-api/branch/master/graph/badge.svg" />
         </a>
     </div>
