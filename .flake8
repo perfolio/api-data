@@ -1,4 +1,4 @@
 [flake8]
 count = True
 statistics = True
-docstring-convention=google
+docstring-convention = google
