@@ -8,6 +8,7 @@ from get_data.fetch import Fetcher as fe
 
 pd.options.mode.chained_assignment = None
 
+
 print("Starting data import of factor returns, riskfree rates and exchange rates...")
 
 # ECB Risk Free Rates #
@@ -136,7 +137,7 @@ for currency in currencies_fxrates:
 for region in regions:
     print(f"Parsing factor returns for region {region['name']}...")
 
-    # Check if region has 5 factor data and set flag for parsing
+    # Check if region has 3 factor data and set flag for parsing
     try:
         if region["freq"][0]["3factors"]:
             three_factor = True
