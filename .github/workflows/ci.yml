@@ -49,7 +49,7 @@ jobs:
       id: cache
       with:
         path: ~/.cache/pypoetry/virtualenvs
-        key: poetry-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        key: api-data-poetry-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
