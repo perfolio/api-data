@@ -6,6 +6,29 @@ from typing import Any, Dict, List
 
 regions: List[Dict[str, Any]] = [
     {
+        "name": "usa",
+        "freq": [
+            {
+                "interval": "daily",
+                "3factors": "F-F_Research_Data_Factors_daily_CSV",
+                "5factors": "F-F_Research_Data_5_Factors_2x3_daily_CSV",
+                "mom": "F-F_Momentum_Factor_daily_CSV",
+            },
+            {
+                "interval": "monthly",
+                "3factors": "F-F_Research_Data_Factors_CSV",
+                "5factors": "F-F_Research_Data_5_Factors_2x3_CSV",
+                "mom": "F-F_Momentum_Factor_CSV",
+            },
+            {
+                "interval": "annual",
+                "3factors": "F-F_Research_Data_Factors_CSV",
+                "5factors": "F-F_Research_Data_5_Factors_2x3_CSV",
+                "mom": "F-F_Momentum_Factor_CSV",
+            },
+        ],
+    },
+    {
         "name": "developed",
         "freq": [
             {
