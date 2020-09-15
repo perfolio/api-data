@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List
 
 import numpy as np
@@ -87,7 +88,7 @@ class RiskFreeRate(models.Model):
             RiskFreeRate.objects.bulk_create(create_list)
 
         # Print summary
-        print(
+        logging.info(
             f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} RiskFreeRate {currency}."
         )
 
@@ -202,7 +203,7 @@ class ExchangeRateUSDPerX(models.Model):
             ExchangeRateUSDPerX.objects.bulk_create(create_list)
 
         # Print summary
-        print(
+        logging.info(
             f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} ExchangeRateUSDPerX."
         )
 
@@ -304,7 +305,7 @@ class ThreeFourFactor(models.Model):
             ThreeFourFactor.objects.bulk_create(create_list)
 
         # Print summary
-        print(
+        logging.info(
             f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} ThreeFourFactor {region} {currency}."
         )
 
@@ -410,6 +411,6 @@ class FiveSixFactor(models.Model):
             FiveSixFactor.objects.bulk_create(create_list)
 
         # Print summary
-        print(
+        logging.info(
             f"Created: {len(create_list)}, updated: {len(update_list)}, unchanged: {len(df.index) - len(create_list) - len(update_list)} for {interval} FiveSixFactor {region} {currency}."
         )
