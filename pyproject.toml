@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data-api"
+name = "api-data"
 version = "0.1.0"
 description = "Perfolio's django-based data API"
 authors = ["Perfolio"]
