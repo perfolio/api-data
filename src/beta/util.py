@@ -17,7 +17,7 @@ from get_data.config.general import (
 # Helpers #
 
 
-def throttle_handler(wait):
+def throttle_handler(wait: float):
     raise Throttled(
         detail={
             "Error": f"Request limit exceeded. Reset in {int(wait/60)} min. Create a user account and get your token or contact us for further options.",
@@ -134,7 +134,7 @@ class QueryTokenAuthentication(TokenAuthentication):
     via token parameter in querystring.
     """
 
-    def authenticate(self, request):
+    def authenticate(self, request: Any):
         token = request.query_params.get("token")
 
         if token:
@@ -144,5 +144,5 @@ class QueryTokenAuthentication(TokenAuthentication):
 
 
 class ReadOnlyAPI(permissions.BasePermission):
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any):
         return request.method in permissions.SAFE_METHODS

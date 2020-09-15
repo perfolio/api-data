@@ -38,7 +38,7 @@ class RiskFreeRate(models.Model):
         )
 
     @staticmethod
-    def __compare(x, y):
+    def __compare(x: np.float64, y: np.float64):
         return np.isclose(
             np.float64(x),
             np.float64(y),
@@ -155,7 +155,7 @@ class ExchangeRateUSDPerX(models.Model):
         )
 
     @staticmethod
-    def __compare(x, y):
+    def __compare(x: np.float64, y: np.float64):
         return np.isclose(
             np.float64(x),
             np.float64(y),
@@ -248,7 +248,7 @@ class ThreeFourFactor(models.Model):
         )
 
     @staticmethod
-    def __compare(x, y):
+    def __compare(x: np.float64, y: np.float64):
         return np.isclose(
             np.float64(x),
             np.float64(y),
@@ -354,7 +354,7 @@ class FiveSixFactor(models.Model):
         )
 
     @staticmethod
-    def __compare(x, y):
+    def __compare(x: np.float64, y: np.float64):
         return np.isclose(
             np.float64(x),
             np.float64(y),
