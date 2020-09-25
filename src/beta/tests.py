@@ -18,48 +18,15 @@ from get_data.config.general import (
 )
 
 
-class APIRouteTestsAnon(APITestCase):
+class APIRouteTests(APITestCase):
     """
-    Tests for API routes and rate limit as an anonymous user.
+    Tests for API routes.
     """
-
-    def test_routes(self):
-        """
-        It returns http 200 for some valid routes.
-        """
-        # Mock throttle
-        api.FiveFactorView.throttle_classes = ()
-        api.ExchangeRateUSDPerXView.throttle_classes = ()
-
-        # fxrate
-        url = reverse(
-            "fxrate",
-            kwargs={
-                "currency": "ils",
-                "interval": "annual",
-            },
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # 5factor
-        url = reverse(
-            "5factor",
-            kwargs={
-                "factor": "all",
-                "region": "japan",
-                "currency": "ils",
-                "interval": "annual",
-            },
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_invalid_route(self):
         """
         It returns http 400 for invalid URL paths.
         """
-        api.InvalidUrlPath.throttle_classes = ()
 
         url = reverse(
             "fxrate",
@@ -70,50 +37,6 @@ class APIRouteTestsAnon(APITestCase):
         )
         response = self.client.get(url[:9])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_rate_limit(self):
-        """
-        It returns http 429 with proper message after hitting rate limit
-        """
-        # Parse throttle rate from settings dynamically, no need to change manually
-        rate_limit = int(REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["anon"].rsplit("/")[0])  # type: ignore
-
-        for i in range(0, rate_limit):
-            url = reverse(
-                "rf",
-                kwargs={"currency": "EUR", "interval": "m"},
-            )
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Next http get should return http 429
-        url = reverse(
-            "3factor",
-            kwargs={
-                "factor": "SMB",
-                "region": "Developed",
-                "currency": "USD",
-                "interval": "daily",
-            },
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
-        self.assertTrue("Error" in json.loads(response.content).keys())
-
-
-class APIRouteTestsUser(APITestCase):
-    """
-    Tests for API routes providing a valid token
-    """
-
-    def setUp(self):
-        """
-        Create a user and a token and mock rate limit for exhaustive testing.
-        """
-        self.user = User.objects.create(username="testuser")
-        self.token = Token.objects.create(user=self.user)
-        api.RiskFreeRateView.throttle_classes = ()
-        api.ThreeFactorView.throttle_classes = ()
 
     def test_routes_rf(self):
         """
@@ -128,7 +51,7 @@ class APIRouteTestsUser(APITestCase):
                     "rf",
                     kwargs={"currency": currency, "interval": interval},
                 )
-                response = self.client.get(url, {"token": self.token})
+                response = self.client.get(url)
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_routes_fxrate(self):
@@ -150,7 +73,7 @@ class APIRouteTestsUser(APITestCase):
                 url = reverse(
                     "fxrate", kwargs={"currency": currency, "interval": interval}
                 )
-                response = self.client.get(url, {"token": self.token})
+                response = self.client.get(url)
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_routes_3factor(self):
@@ -178,7 +101,6 @@ class APIRouteTestsUser(APITestCase):
                         response = self.client.get(
                             url,
                             {
-                                "token": self.token,
                                 "from": "2019-12-31",
                                 "to": "2020-03-31",
                             },
@@ -208,7 +130,6 @@ class APIRouteTestsUser(APITestCase):
                 response = self.client.get(
                     url,
                     {
-                        "token": self.token,
                         "from": "1999-12",
                         "to": "2005-08",
                     },
@@ -236,7 +157,6 @@ class APIRouteTestsUser(APITestCase):
         response = self.client.get(
             url,
             {
-                "token": self.token,
                 "dropna": "False",
             },
         )
@@ -263,7 +183,6 @@ class APIRouteTestsUser(APITestCase):
         response = self.client.get(
             url,
             {
-                "token": self.token,
                 "dropna": "true",
             },
         )

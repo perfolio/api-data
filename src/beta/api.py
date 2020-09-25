@@ -6,13 +6,7 @@ from rest_framework.response import Response
 from get_data.config.general import factors
 
 from . import models, serializers
-from .util import (
-    QueryTokenAuthentication,
-    ReadOnlyAPI,
-    get_params,
-    range_filter,
-    throttle_handler,
-)
+from .util import ReadOnlyAPI, get_params, range_filter
 
 # Views #
 
@@ -24,7 +18,6 @@ class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
 
     serializer_class = serializers.RiskFreeRateSerializer
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "rf_perfolio.xlsx"
 
     def get_queryset(self):
@@ -47,9 +40,6 @@ class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(rf__isnull=True)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 # Exchange Rates #
 
@@ -58,7 +48,6 @@ class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyExchangeRateUSDPerX class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "fx_perfolio.xlsx"
 
     # Overwrite list method to make use of dynamic serializer
@@ -89,9 +78,6 @@ class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**{params_dict["currency"] + "__isnull": True})
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 # Factor returns #
 
@@ -100,7 +86,6 @@ class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the ThreeFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "3factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -145,15 +130,11 @@ class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class FourFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFourFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "4factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -198,15 +179,11 @@ class FourFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFiveFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "5factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -251,15 +228,11 @@ class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class SixFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailySixFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "6factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -304,20 +277,13 @@ class SixFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class InvalidUrlPath(generics.ListAPIView):
     """View for invalid UrlPaths"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
 
     def get_queryset(self):
         raise ValidationError(
             {"Error": "No data at this location. Please check URL path."}
         )
-
-    def throttled(self, request, wait):
-        throttle_handler(wait)
