@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from get_data.config.general import factors
 
 from . import models, serializers
-from .util import ReadOnlyAPI, get_params, range_filter, throttle_handler
+from .util import ReadOnlyAPI, get_params, range_filter
 
 # Views #
 
@@ -39,9 +39,6 @@ class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
             return objects
 
         return objects.exclude(rf__isnull=True)
-
-    def throttled(self, request, wait):
-        throttle_handler(wait)
 
 
 # Exchange Rates #
@@ -80,9 +77,6 @@ class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
             return objects
 
         return objects.exclude(**{params_dict["currency"] + "__isnull": True})
-
-    def throttled(self, request, wait):
-        throttle_handler(wait)
 
 
 # Factor returns #
@@ -136,9 +130,6 @@ class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class FourFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFourFactor class"""
@@ -187,9 +178,6 @@ class FourFactorView(XLSXFileMixin, generics.ListAPIView):
             filter_fields[f + "__isnull"] = True
 
         return objects.exclude(**filter_fields)
-
-    def throttled(self, request, wait):
-        throttle_handler(wait)
 
 
 class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
@@ -240,9 +228,6 @@ class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class SixFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailySixFactor class"""
@@ -292,9 +277,6 @@ class SixFactorView(XLSXFileMixin, generics.ListAPIView):
 
         return objects.exclude(**filter_fields)
 
-    def throttled(self, request, wait):
-        throttle_handler(wait)
-
 
 class InvalidUrlPath(generics.ListAPIView):
     """View for invalid UrlPaths"""
@@ -305,6 +287,3 @@ class InvalidUrlPath(generics.ListAPIView):
         raise ValidationError(
             {"Error": "No data at this location. Please check URL path."}
         )
-
-    def throttled(self, request, wait):
-        throttle_handler(wait)
