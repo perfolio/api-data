@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "beta",
     "rest_framework",
-    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
@@ -158,5 +157,4 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "10/hour", "user": "1000/hour"},
 }

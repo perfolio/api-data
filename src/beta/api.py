@@ -6,13 +6,7 @@ from rest_framework.response import Response
 from get_data.config.general import factors
 
 from . import models, serializers
-from .util import (
-    QueryTokenAuthentication,
-    ReadOnlyAPI,
-    get_params,
-    range_filter,
-    throttle_handler,
-)
+from .util import ReadOnlyAPI, get_params, range_filter, throttle_handler
 
 # Views #
 
@@ -24,7 +18,6 @@ class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
 
     serializer_class = serializers.RiskFreeRateSerializer
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "rf_perfolio.xlsx"
 
     def get_queryset(self):
@@ -58,7 +51,6 @@ class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyExchangeRateUSDPerX class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "fx_perfolio.xlsx"
 
     # Overwrite list method to make use of dynamic serializer
@@ -100,7 +92,6 @@ class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the ThreeFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "3factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -153,7 +144,6 @@ class FourFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFourFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "4factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -206,7 +196,6 @@ class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailyFiveFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "5factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -259,7 +248,6 @@ class SixFactorView(XLSXFileMixin, generics.ListAPIView):
     """View for the DailySixFactor class"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
     filename = "6factor_perfolio.xlsx"
 
     def list(self, request, factor, region, currency, interval):
@@ -312,7 +300,6 @@ class InvalidUrlPath(generics.ListAPIView):
     """View for invalid UrlPaths"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
-    authentication_classes = [QueryTokenAuthentication]
 
     def get_queryset(self):
         raise ValidationError(
