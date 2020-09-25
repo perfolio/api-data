@@ -17,14 +17,6 @@ from get_data.config.general import (
 # Helpers #
 
 
-def throttle_handler(wait: float):
-    raise Throttled(
-        detail={
-            "Error": f"Request limit exceeded. Reset in {int(wait/60)} min. Create a user account and get your token or contact us for further options.",
-        }
-    )
-
-
 def get_params(
     obj: Any, rf: bool = False, factor: Optional[int] = None
 ) -> Dict[str, str]:
