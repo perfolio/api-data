@@ -2,8 +2,9 @@ from drf_renderer_xlsx.mixins import XLSXFileMixin
 from rest_framework import generics, permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from get_data.config.general import factors
+from get_data.config.general import currencies_fxrates, factors, intervals, regions
 
 from . import models, serializers
 from .util import ReadOnlyAPI, get_params, range_filter
@@ -286,4 +287,134 @@ class InvalidUrlPath(generics.ListAPIView):
     def get_queryset(self):
         raise ValidationError(
             {"Error": "No data at this location. Please check URL path."}
+        )
+
+
+class EndpointsView(APIView):
+    """View for possible endpoints"""
+
+    permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
+
+    def get(self, request, format=None):
+        """"""
+        return Response(
+            {
+                "factorModels": [
+                    {
+                        "value": "3factor",
+                        "display": "3 factor model by Fama & French 1993",
+                        "factors": [
+                            {
+                                "value": "mktrf",
+                                "display": "Mkt-RF",
+                            },
+                            {
+                                "value": "smb",
+                                "display": "SMB",
+                            },
+                            {
+                                "value": "hml",
+                                "display": "HML",
+                            },
+                            {
+                                "value": "all",
+                                "display": "All factors",
+                            },
+                        ],
+                    },
+                    {
+                        "value": "4factor",
+                        "display": "4 factor model by Carhart 1997",
+                        "factors": [
+                            {
+                                "value": "mktrf",
+                                "display": "Mkt-RF",
+                            },
+                            {
+                                "value": "smb",
+                                "display": "SMB",
+                            },
+                            {
+                                "value": "hml",
+                                "display": "HML",
+                            },
+                            {
+                                "value": "mom",
+                                "display": "MOM",
+                            },
+                            {
+                                "value": "all",
+                                "display": "All factors",
+                            },
+                        ],
+                    },
+                    {
+                        "value": "5factor",
+                        "display": "5 factor model by Fama & French 2015",
+                        "factors": [
+                            {
+                                "value": "mktrf",
+                                "display": "Mkt-RF",
+                            },
+                            {
+                                "value": "smb",
+                                "display": "SMB",
+                            },
+                            {
+                                "value": "hml",
+                                "display": "HML",
+                            },
+                            {
+                                "value": "rmw",
+                                "display": "RMW",
+                            },
+                            {
+                                "value": "cma",
+                                "display": "CMA",
+                            },
+                            {
+                                "value": "all",
+                                "display": "All factors",
+                            },
+                        ],
+                    },
+                    {
+                        "value": "6factor",
+                        "display": "6 factor model by Fama & French 2018",
+                        "factors": [
+                            {
+                                "value": "mktrf",
+                                "display": "Mkt-RF",
+                            },
+                            {
+                                "value": "smb",
+                                "display": "SMB",
+                            },
+                            {
+                                "value": "hml",
+                                "display": "HML",
+                            },
+                            {
+                                "value": "rmw",
+                                "display": "RMW",
+                            },
+                            {
+                                "value": "cma",
+                                "display": "CMA",
+                            },
+                            {
+                                "value": "mom",
+                                "display": "MOM",
+                            },
+                            {
+                                "value": "all",
+                                "display": "All factors",
+                            },
+                        ],
+                    },
+                ],
+                "regions": regions,
+                "currencies": currencies_fxrates,
+                "intervals": intervals,
+            }
         )
