@@ -413,8 +413,25 @@ class EndpointsView(APIView):
                         ],
                     },
                 ],
-                "regions": regions,
-                "currencies": currencies_fxrates,
-                "intervals": intervals,
+                "regions": [
+                    {"value": "usa", "display": "USA"},
+                    {"value": "developed", "display": "Developed"},
+                    {"value": "developed_ex_us", "display": "Developed ex US"},
+                    {"value": "europe", "display": "Europe"},
+                    {"value": "japan", "display": "Japan"},
+                    {
+                        "value": "Asia Pacific ex Japan",
+                        "display": "Asia Pacific ex Japan",
+                    },
+                    {"value": "north_america", "display": "North America"},
+                    {"value": "emerging", "display": "Emerging"},
+                ],
+                "currencies": [
+                    {"value": currency, "display": currency}
+                    for currency in currencies_fxrates
+                ],
+                "intervals": [
+                    {"value": interval, "display": interval} for interval in intervals
+                ],
             }
         )
