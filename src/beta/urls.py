@@ -1,5 +1,7 @@
 from django.urls import path, re_path
 
+from beta.api import EndpointsView
+
 from . import api
 
 urlpatterns = (
@@ -30,5 +32,6 @@ urlpatterns = (
         api.SixFactorView.as_view(),
         name="6factor",
     ),
+    path("builder/factor", api.EndpointsView.as_view(), name="endpoint"),
     re_path(r"^.*$", api.InvalidUrlPath.as_view(), name="catch-all"),
 )
