@@ -153,8 +153,4 @@ REST_FRAMEWORK = {
         "drf_renderer_xlsx.renderers.XLSXRenderer",
         "rest_framework_xml.renderers.XMLRenderer",
     ],
-    "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
-    ],
 }
