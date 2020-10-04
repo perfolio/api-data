@@ -4,18 +4,37 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from get_data.config.general import currencies_fxrates, factors, intervals, regions
+from get_data.config.general import currencies_fxrates, factors, intervals
 
 from . import models, serializers
 from .util import ReadOnlyAPI, get_params, range_filter
 
 # Views #
 
+
+class RootView(APIView):
+    """This is a list of available endpoints. See docs for parameters and filters."""
+
+    permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
+
+    def get(self, request, format=None):
+        return Response(
+            {
+                "rf": "https://api.perfol.io/d/beta/rf/<currency>/<interval>",
+                "fxrate": "https://api.perfol.io/d/beta/fxrate/<currency>/<interval>",
+                "3factor": "https://api.perfol.io/d/beta/3factor/<factor>/<region>/<currency>/<interval>",
+                "4factor": "https://api.perfol.io/d/beta/4factor/<factor>/<region>/<currency>/<interval>",
+                "5factor": "https://api.perfol.io/d/beta/5factor/<factor>/<region>/<currency>/<interval>",
+                "6factor": "https://api.perfol.io/d/beta/6factor/<factor>/<region>/<currency>/<interval>",
+            }
+        )
+
+
 # Risk Free Rate #
 
 
 class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
-    """View for the RiskFreeRate class"""
+    """This is the riskfree rates endpoint. For more information please refer to the docs."""
 
     serializer_class = serializers.RiskFreeRateSerializer
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
@@ -46,7 +65,7 @@ class RiskFreeRateView(XLSXFileMixin, generics.ListAPIView):
 
 
 class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
-    """View for the DailyExchangeRateUSDPerX class"""
+    """This is the exchange rates endpoint. For more information please refer to the docs."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     filename = "fx_perfolio.xlsx"
@@ -84,7 +103,7 @@ class ExchangeRateUSDPerXView(XLSXFileMixin, generics.ListAPIView):
 
 
 class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
-    """View for the ThreeFactor class"""
+    """This is the 3 factor model by Fama & French 1993 endpoint. For more information please refer to the docs."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     filename = "3factor_perfolio.xlsx"
@@ -133,7 +152,7 @@ class ThreeFactorView(XLSXFileMixin, generics.ListAPIView):
 
 
 class FourFactorView(XLSXFileMixin, generics.ListAPIView):
-    """View for the DailyFourFactor class"""
+    """This is the 4 factor model by Carhart 1997 endpoint. For more information please refer to the docs."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     filename = "4factor_perfolio.xlsx"
@@ -182,7 +201,7 @@ class FourFactorView(XLSXFileMixin, generics.ListAPIView):
 
 
 class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
-    """View for the DailyFiveFactor class"""
+    """This is the 5 factor model by Fama & French 2015 endpoint. For more information please refer to the docs."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     filename = "5factor_perfolio.xlsx"
@@ -231,7 +250,7 @@ class FiveFactorView(XLSXFileMixin, generics.ListAPIView):
 
 
 class SixFactorView(XLSXFileMixin, generics.ListAPIView):
-    """View for the DailySixFactor class"""
+    """This is the 6 factor model by Fama & French 2018 endpoint. For more information please refer to the docs."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
     filename = "6factor_perfolio.xlsx"
@@ -280,7 +299,7 @@ class SixFactorView(XLSXFileMixin, generics.ListAPIView):
 
 
 class InvalidUrlPath(generics.ListAPIView):
-    """View for invalid UrlPaths"""
+    """Invalid URL path. All URL parameters must be specified."""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
 
@@ -291,12 +310,12 @@ class InvalidUrlPath(generics.ListAPIView):
 
 
 class EndpointsView(APIView):
-    """View for possible endpoints"""
+    """This is the endpoint config for internal purposes"""
 
     permission_classes = [permissions.IsAdminUser | ReadOnlyAPI]
 
     def get(self, request, format=None):
-        """"""
+        """Return dictionary with value/display pairs"""
         return Response(
             {
                 "factorModels": [

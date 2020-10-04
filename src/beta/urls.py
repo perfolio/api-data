@@ -1,11 +1,10 @@
 from django.urls import path, re_path
 
-from beta.api import EndpointsView
-
 from . import api
 
 urlpatterns = (
     # urls for Django Rest Framework API
+    path("", api.RootView.as_view(), name="root"),
     path("rf/<str:currency>/<str:interval>", api.RiskFreeRateView.as_view(), name="rf"),
     path(
         "fxrate/<str:currency>/<str:interval>",
