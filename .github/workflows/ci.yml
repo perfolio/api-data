@@ -45,7 +45,7 @@ jobs:
         pip install poetry
         poetry config virtualenvs.in-project false
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v2.1.4
       id: cache
       with:
         path: ~/.cache/pypoetry/virtualenvs
